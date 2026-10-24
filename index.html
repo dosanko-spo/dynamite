@@ -18,6 +18,7 @@ button,.pe,.nb,.chip,.tab,label.btn{-webkit-tap-highlight-color:transparent}
 header.top{max-width:980px;margin:0 auto;padding:14px 16px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .brand{font-weight:800;font-size:19px;letter-spacing:.03em;line-height:1.3}
 .brand small{display:block;font-weight:400;font-size:12.5px;color:var(--muted);letter-spacing:0}
+.ver{margin:12px 0 0;font-size:14px}
 .lock{margin-left:auto;font-size:12px;color:var(--ai);background:var(--ai-soft);border-radius:999px;padding:4px 10px;white-space:nowrap}
 nav.tabs{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
 nav.tabs .in{max-width:980px;margin:0 auto;display:flex;gap:2px;overflow-x:auto;padding:6px 10px;scrollbar-width:none}
@@ -958,6 +959,7 @@ var Sched = (function () {
   "use strict";
   var KEY = "chanbara-rr-v1";
   var PAY = "R3";
+  var APP_VERSION = "1.0", APP_DATE = "2026年10月25日";
   var CHECK_SVG = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   function esc(s) {
@@ -1155,7 +1157,7 @@ var Sched = (function () {
       } else if (!canStore) {
         h += '<p class="pv-safe">このブラウザでは保存ができないため、家族をまとめて表示できません。</p>';
       }
-      h += '<p class="pv-safe">このページは通信をしません。名前は二次元コードの中と、このスマホの中だけにあります。</p></main>';
+      h += '<p class="pv-safe">名前や試合の情報は、どこにも送信しません（二次元コードの中と、このスマホの中だけにあります）。ページを開くときだけGitHubから読み込む通信があり、そのとき端末のIPアドレスがGitHubに記録されることがあります。</p></main>';
       root.innerHTML = h;
     }
     function toggleDone(no) {
@@ -1349,7 +1351,7 @@ var Sched = (function () {
   function render() {
     root.innerHTML =
       '<header class="top"><div class="brand">総当たり戦ボード<small id="brandSub">' + esc(S.title || "スポーツチャンバラ") + "</small></div>" +
-      '<span class="lock">端末内だけで動作・通信なし</span></header>' +
+      '<span class="lock">名簿・記録は外部に送りません</span></header>' +
       '<nav class="tabs" aria-label="画面切り替え"><div class="in" role="tablist">' +
       TABS.map(function (t) {
         return '<button class="tab" role="tab" data-act="tab" data-tab="' + t[0] + '" aria-selected="' + (S.tab === t[0]) + '" aria-label="' + t[1] + '">' +
@@ -1924,11 +1926,14 @@ var Sched = (function () {
       '<div class="btns"><button class="btn" data-act="xlsxSheets"' + (S.matches.length ? "" : " disabled") + ">コート別の記録用紙（.xlsx）</button>" +
       '<button class="btn" data-act="xlsxResults"' + (S.matches.length ? "" : " disabled") + ">結果（順位表・試合結果・星取表）</button></div></section>" +
       '<section class="card"><h2>このアプリと個人情報</h2><ul class="dots">' +
-      "<li>このページは通信を一切しない設定になっています（ブラウザの機能で外部への送信をブロック）。</li>" +
+      "<li>ページを読み込んだあとは、名簿や試合の情報を外部へ送る通信をしません（ブラウザの機能で外部への送信をブロック）。</li>" +
+      "<li>ページを開くときは、置き場所（GitHub Pages）からページを読み込みます。そのとき、閲覧した端末のIPアドレスなどがGitHubに記録されることがあります（名前や試合の情報は届きません）。</li>" +
       "<li>名簿や組み合わせ、勝敗の記録は、この端末のブラウザの中にだけ保存されます。</li>" +
       "<li>二次元コードには、その選手の試合（番号・コート・相手の名前）だけが入ります。ページの置き場所のサーバーには名前は届きません。</li>" +
       "<li>名簿のスプレッドシートから取り込むのは、名前とふりがなの列だけです。ほかの列（学年・連絡先など）は取り込みません。</li>" +
-      "<li>保護者が二次元コードのリンクをLINEなどで送ると、名前ごと広がります。保護者には送らないようお願いしてください。</li></ul></section>" +
+      "<li>保護者が二次元コードのリンクをLINEなどで送ると、名前ごと広がります。保護者には送らないようお願いしてください。</li></ul>" +
+      '<p class="ver">このアプリの版：<b>v' + APP_VERSION + "</b>（" + APP_DATE + "版）</p>" +
+      '<p class="help">大会の前に、この版番号がGitHubの「Releases」に記録した大会用の版と同じか確かめてください。</p></section>' +
       '<section class="card"><h2>二次元コードのリンク先</h2>' +
       '<p class="help">今開いているページのURL：' + (auto ? '<span class="url">' + esc(auto) + "</span>（自動で使います）" : "なし（手元のファイルとして開いています）") + "</p>" +
       '<label class="f" for="fBase">別のURLを使う場合だけ入力</label>' +
