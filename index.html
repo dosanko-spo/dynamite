@@ -309,7 +309,7 @@ ol.pl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:
 </head>
 <body>
 <div id="app"><noscript><p style="padding:16px">このアプリはJavaScriptをオンにすると動きます。</p></noscript></div>
-<dialog id="dlg" aria-label="QRコード"></dialog>
+<dialog id="dlg" aria-label="二次元コード"></dialog>
 <div id="toast" role="status" aria-live="polite"></div>
 <div id="print"></div>
 <script>
@@ -393,7 +393,7 @@ var QR = (function () {
     }
     if (ver > 40) {
       if (ecl === "M") return encode(text, "L");
-      throw new Error("QRに入りきりません");
+      throw new Error("二次元コードに入りきりません");
     }
     var cap = dataCodewords(ver, ecl) * 8;
     var bits = [];
@@ -547,7 +547,7 @@ var QR = (function () {
     for (var y = 0; y < qr.size; y++) for (var x = 0; x < qr.size; x++)
       if (qr.modules[y][x]) d += "M" + (x + border) + " " + (y + border) + "h1v1h-1z";
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + n + " " + n +
-      '" shape-rendering="crispEdges" role="img" aria-label="' + (opts.label || "QRコード") +
+      '" shape-rendering="crispEdges" role="img" aria-label="' + (opts.label || "二次元コード") +
       '"><rect width="100%" height="100%" fill="#fff"/><path d="' + d + '" fill="#000"/></svg>';
   }
 
@@ -1039,7 +1039,7 @@ var Sched = (function () {
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
   }
 
-  /* ---------- 選手モード（QRから開いたとき） ---------- */
+  /* ---------- 選手モード（二次元コードから開いたとき） ---------- */
   var root = document.getElementById("app");
   window.addEventListener("hashchange", function () {
     if ((location.hash || "").indexOf("#p=") === 0) location.reload();
@@ -1048,12 +1048,12 @@ var Sched = (function () {
 
   function playerMode(code) {
     document.body.className = "pmode";
-    var FKEY = "chanbara-family-v1", TTL = 3 * 24 * 3600 * 1000, MAXK = 6;
-    var COLORS = ["#b83a24", "#244f78", "#2d7445", "#8a5300", "#6b3fa0", "#0f6a6a"];
+    var FKEY = "chanbara-family-v1", TTL = 3 * 24 * 3600 * 1000, MAXK = 8;
+    var COLORS = ["#b83a24", "#244f78", "#2d7445", "#8a5300", "#6b3fa0", "#0f6a6a", "#a3306b", "#4a5560"];
     var p;
     try { p = decodePayload(code); } catch (e) { p = null; }
     if (!p) {
-      root.innerHTML = '<main class="pv"><div class="card"><h2>読み取れませんでした</h2><p>QRコードをもう一度読み取ってください。</p></div></main>';
+      root.innerHTML = '<main class="pv"><div class="card"><h2>読み取れませんでした</h2><p>二次元コードをもう一度読み取ってください。</p></div></main>';
       return;
     }
     var canStore = true, F = null, pending = false, solo = false, only = null, memDone = {};
@@ -1095,17 +1095,17 @@ var Sched = (function () {
     function draw() {
       var kids = shownKids(), multi = kids.length > 1;
       if (only != null && only >= kids.length) only = null;
-      document.title = multi ? "きょうだいの試合" : kids[0].name + "さんの試合";
+      document.title = multi ? "家族の試合" : kids[0].name + "さんの試合";
       var h = '<main class="pv"><p class="pv-title">' + esc((F && F.title) || p.title || "総当たり戦") + "</p>";
       if (pending) {
         h += '<div class="ask"><p><b>' + pnoTag(p.num) + esc(p.name) + "さん</b>の試合を読み取りました。</p>" +
-          "<p>このスマホには " + F.kids.map(function (k) { return "<b>" + esc(k.name) + "さん</b>"; }).join("、") + " の試合が保存されています。きょうだいとして追加して、まとめて表示しますか？</p>" +
+          "<p>このスマホには " + F.kids.map(function (k) { return "<b>" + esc(k.name) + "さん</b>"; }).join("、") + " の試合が保存されています。家族として追加して、まとめて表示しますか？</p>" +
           '<div class="btns"><button class="btn primary" data-pact="add">追加してまとめる</button>' +
-          '<button class="btn" data-pact="solo">追加しない（この子だけ見る）</button></div></div>';
+          '<button class="btn" data-pact="solo">追加しない（この人だけ見る）</button></div></div>';
       }
       if (multi) {
-        h += '<h1 class="pv-name">きょうだいの試合<span>（' + kids.length + "人）</span></h1>" +
-          '<div class="kchips" role="group" aria-label="表示する子">' +
+        h += '<h1 class="pv-name">家族の試合<span>（' + kids.length + "人）</span></h1>" +
+          '<div class="kchips" role="group" aria-label="表示する人">' +
           '<button class="kchip" data-pact="only" data-i="" aria-pressed="' + (only == null) + '">全員</button>' +
           kids.map(function (k, i) {
             var live = k.entries.filter(function (e) { return !e.ff; }).length;
@@ -1132,7 +1132,7 @@ var Sched = (function () {
         if (r.items.length > 1) {
           var b2 = r.items[1];
           body = '<span class="kt" style="--kc:' + colorOf(it.ki) + '">' + pnoTag(it.k.num) + esc(it.k.name) + '</span><span class="vline"><span class="x">vs</span>' +
-            '<span class="kt" style="--kc:' + colorOf(b2.ki) + '">' + pnoTag(b2.k.num) + esc(b2.k.name) + '</span><span class="sib">きょうだい対決</span></span>';
+            '<span class="kt" style="--kc:' + colorOf(b2.ki) + '">' + pnoTag(b2.k.num) + esc(b2.k.name) + '</span><span class="sib">家族対決</span></span>';
         } else {
           body = (multi ? '<span class="kt" style="--kc:' + colorOf(it.ki) + '">' + pnoTag(it.k.num) + esc(it.k.name) + "</span>" : "") +
             '<span class="vline"><span class="x">vs</span><span class="opp">' + pnoTag(it.e.oppNum) + esc(it.e.opp) + "</span></span>";
@@ -1150,12 +1150,12 @@ var Sched = (function () {
           return '<li style="--kc:' + colorOf(i) + '"><span class="kdot"></span>' + pnoTag(k.num) + "<b>" + esc(k.name) + '</b><small class="num">' + esc(k.stamp) + " 発行</small>" +
             (F.kids.length > 1 ? '<button class="btn small" data-pact="drop" data-i="' + i + '">外す</button>' : "") + "</li>";
         }).join("") + "</ul>" +
-          '<p class="help">きょうだいのQRを続けて読み取ると、ここに追加できます。保存はこのスマホの中だけで、最後に読み取ってから3日たつと自動で消えます。</p>' +
+          '<p class="help">家族の二次元コードを続けて読み取ると、ここに追加できます。保存はこのスマホの中だけで、最後に読み取ってから3日たつと自動で消えます。</p>' +
           '<div class="btns"><button class="btn small danger" data-pact="clear">この端末から消す</button></div></section>';
       } else if (!canStore) {
-        h += '<p class="pv-safe">このブラウザでは保存ができないため、きょうだいをまとめて表示できません。</p>';
+        h += '<p class="pv-safe">このブラウザでは保存ができないため、家族をまとめて表示できません。</p>';
       }
-      h += '<p class="pv-safe">このページは通信をしません。名前はQRコードの中と、このスマホの中だけにあります。</p></main>';
+      h += '<p class="pv-safe">このページは通信をしません。名前は二次元コードの中と、このスマホの中だけにあります。</p></main>';
       root.innerHTML = h;
     }
     function toggleDone(no) {
@@ -1343,7 +1343,7 @@ var Sched = (function () {
     ["all", "記録・全体", "記録", ico('<rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 9l2 2 4-4M8 15.5h8"/>')],
     ["court", "コート別・照合", "コート", ico('<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M12 4.5v15M3.5 12h17"/>')],
     ["rank", "順位", "順位", ico('<path d="M8 20v-6h8v6M3.5 20v-3.5H8M16 13V8.5h-8V13M16 20v-4h4.5v4M2.5 20h19"/>')],
-    ["players", "選手・QR", "QR", ico('<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>')],
+    ["players", "選手・二次元コード", "コード", ico('<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>')],
     ["data", "データ・出力", "データ", ico('<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"/>')]
   ];
   function render() {
@@ -1383,7 +1383,7 @@ var Sched = (function () {
     var restOpts = "";
     for (var r = 0; r <= 6; r++) restOpts += '<option value="' + r + '"' + (S.rest === r ? " selected" : "") + ">" + r + "巡</option>";
     var h = '<div class="setup-grid"><div class="col"><section class="card"><h2>大会の設定</h2>' +
-      '<label class="f" for="fTitle">大会名（QRの画面や出力にも出ます）</label>' +
+      '<label class="f" for="fTitle">大会名（選手の画面や出力にも出ます）</label>' +
       '<input id="fTitle" type="text" data-f="title" value="' + esc(S.title) + '" placeholder="例）秋の総当たり戦" maxlength="24">' +
       '<div class="row2"><div><label class="f" for="fCourts">コート数（Aコート・Bコート…）</label>' +
       '<input id="fCourts" type="number" inputmode="numeric" min="1" max="16" data-f="courts" value="' + S.courts + '"></div>' +
@@ -1513,7 +1513,7 @@ var Sched = (function () {
     h += '<p class="help">' + esc(S.genAt) + " 作成 ・ 目安時間は1試合" + S.minutes + "分で計算</p>" +
       '<div class="btns"><button class="btn primary" data-act="xlsxSheets">コート別の記録用紙を出力（.xlsx）</button>' +
       '<button class="btn" data-act="tab" data-tab="all">記録・全体へ</button>' +
-      '<button class="btn" data-act="tab" data-tab="players">選手・QRへ</button></div></section>';
+      '<button class="btn" data-act="tab" data-tab="players">選手・二次元コードへ</button></div></section>';
     return h;
   }
   function generate() {
@@ -1525,7 +1525,7 @@ var Sched = (function () {
       var recorded = S.matches.filter(function (m) { return m.win; }).length;
       var msg = "組み合わせを作り直すと、試合番号がすべて変わります。" +
         (recorded ? "\n記録した勝敗（" + recorded + "試合分）も消えます。" : "") +
-        (Object.keys(S.issued).length ? "\n配ったQRコードや印刷した記録用紙も使えなくなります。" : "") + "\n作り直しますか？";
+        (Object.keys(S.issued).length ? "\n配った二次元コードや印刷した記録用紙も使えなくなります。" : "") + "\n作り直しますか？";
       if (!confirm(msg)) return;
     }
     var names = pr.names, rest = names.map(restOf);
@@ -1716,7 +1716,7 @@ var Sched = (function () {
     return h;
   }
 
-  /* ----- 選手・QR ----- */
+  /* ----- 選手・二次元コード ----- */
   function payloadFor(id, stamp) {
     var entries = S.matches.filter(function (m) { return m.a === id || m.b === id; })
       .sort(function (x, y) { return x.no - y.no; })
@@ -1729,7 +1729,7 @@ var Sched = (function () {
     var url = base + "#p=" + encodePayload(p);
     var q = QR.encode(url, "M");
     if (q.version > 20) q = QR.encode(url, "L");
-    return { p: p, url: url, svg: QR.toSvg(q, { label: p.name + "さんの試合一覧のQRコード" }), version: q.version };
+    return { p: p, url: url, svg: QR.toSvg(q, { label: p.name + "さんの試合一覧の二次元コード" }), version: q.version };
   }
   function status(id) {
     if (S.dirty[id]) return '<span class="st redo">要再発行</span>';
@@ -1740,12 +1740,12 @@ var Sched = (function () {
     if (!S.matches.length) return needMatches();
     var h = "";
     if (!baseUrl()) {
-      h += '<div class="card warnbox"><h2>QRのリンク先が未設定です</h2><p>このページをインターネット上に置き、そのURLで開くと自動でQRが作れます。手元のファイルを直接開いているときは「データ・出力」タブでリンク先を入力してください。</p>' +
+      h += '<div class="card warnbox"><h2>二次元コードのリンク先が未設定です</h2><p>このページをインターネット上に置き、そのURLで開くと自動で二次元コードが作れます。手元のファイルを直接開いているときは「データ・出力」タブでリンク先を入力してください。</p>' +
         '<div class="btns"><button class="btn small" data-act="tab" data-tab="data">データ・出力タブへ</button></div></div>';
     }
     var dirtyIds = Object.keys(S.dirty).filter(function (k) { return S.dirty[k]; });
-    h += '<div class="toolbar"><p class="help">名前の「QR」を押すと大きく表示されます。保護者のスマホのカメラで読み取ってもらってください。</p>' +
-      '<div class="btns tight"><button class="btn small" data-act="printQR" data-which="all">QRカードを全員分印刷</button>' +
+    h += '<div class="toolbar"><p class="help">名前の横の「コード」を押すと、二次元コードが大きく表示されます。保護者のスマホのカメラで読み取ってもらってください。</p>' +
+      '<div class="btns tight"><button class="btn small" data-act="printQR" data-which="all">二次元コードを全員分印刷</button>' +
       (dirtyIds.length ? '<button class="btn small hot" data-act="printQR" data-which="dirty">要再発行の' + dirtyIds.length + "人分を印刷</button>" : "") +
       "</div></div>" +
       '<input type="search" class="search" data-f="q" placeholder="番号か名前で探す" value="' + esc(U.q) + '" aria-label="番号か名前で探す">' +
@@ -1759,7 +1759,7 @@ var Sched = (function () {
       return '<li class="pr' + (p.absent ? " abs" : "") + '">' + pnoTag(pnum(p.id)) + '<div class="pn"><b>' + esc(p.name) + '</b><span class="num">' + cnt + "試合" +
         (p.rest !== S.rest ? "・間隔" + p.rest + "巡" : "") + "</span></div>" + status(p.id) +
         '<button class="btn small' + (p.absent ? " on" : "") + '" data-act="absent" data-id="' + p.id + '" aria-pressed="' + p.absent + '">欠席</button>' +
-        '<button class="btn small primary" data-act="qr" data-id="' + p.id + '">QR</button></li>';
+        '<button class="btn small primary" data-act="qr" data-id="' + p.id + '">コード</button></li>';
     }).join("") || '<li class="help">見つかりません</li>';
   }
   function openQR(id) {
@@ -1768,10 +1768,10 @@ var Sched = (function () {
     d.innerHTML = '<div class="dlg-in"><div class="dlg-h"><p class="dlg-t">' + pnoTag(r.p.num) + esc(r.p.name) + "<span>さん</span></p>" +
       '<button class="btn small" data-act="close">閉じる</button></div>' +
       (r.svg ? '<div class="qrbox">' + r.svg + '</div><p class="help c">保護者のスマホのカメラで読み取ってください</p>' :
-        '<p class="warn">QRのリンク先が未設定のため、QRは作れません（「データ・出力」タブで設定）。下は表示内容の確認です。</p>') +
+        '<p class="warn">二次元コードのリンク先が未設定のため、二次元コードは作れません（「データ・出力」タブで設定）。下は表示内容の確認です。</p>') +
       '<p class="help c num">全' + live + "試合 ・ " + stamp + " 発行</p>" +
       '<details><summary>保護者のスマホに出る内容を確認</summary>' + listPlayer(r.p.entries, false) + "</details>" +
-      (r.svg ? '<div class="btns"><button class="btn small" data-act="printQR" data-which="one" data-id="' + id + '">このQRを印刷</button></div>' : "") +
+      (r.svg ? '<div class="btns"><button class="btn small" data-act="printQR" data-which="one" data-id="' + id + '">この二次元コードを印刷</button></div>' : "") +
       "</div>";
     if (r.svg) { S.issued[id] = stamp; delete S.dirty[id]; save(); }
     if (typeof d.showModal === "function") { if (!d.open) d.showModal(); } else d.setAttribute("open", "");
@@ -1790,7 +1790,7 @@ var Sched = (function () {
     setTimeout(function () { window.print(); }, 60);
   }
   function printQR(which, oneId) {
-    if (!baseUrl()) { toast("QRのリンク先が未設定です（データ・出力タブで設定）"); return; }
+    if (!baseUrl()) { toast("二次元コードのリンク先が未設定です（データ・出力タブで設定）"); return; }
     var ids = which === "one" ? [oneId] : which === "dirty" ?
       S.players.filter(function (p) { return S.dirty[p.id]; }).map(function (p) { return p.id; }) :
       S.players.map(function (p) { return p.id; });
@@ -1926,14 +1926,14 @@ var Sched = (function () {
       '<section class="card"><h2>このアプリと個人情報</h2><ul class="dots">' +
       "<li>このページは通信を一切しない設定になっています（ブラウザの機能で外部への送信をブロック）。</li>" +
       "<li>名簿や組み合わせ、勝敗の記録は、この端末のブラウザの中にだけ保存されます。</li>" +
-      "<li>QRコードには、その子の試合（番号・コート・相手の名前）だけが入ります。ページの置き場所のサーバーには名前は届きません。</li>" +
+      "<li>二次元コードには、その選手の試合（番号・コート・相手の名前）だけが入ります。ページの置き場所のサーバーには名前は届きません。</li>" +
       "<li>名簿のスプレッドシートから取り込むのは、名前とふりがなの列だけです。ほかの列（学年・連絡先など）は取り込みません。</li>" +
-      "<li>保護者がQRのリンクをLINEなどで送ると、名前ごと広がります。保護者には送らないようお願いしてください。</li></ul></section>" +
-      '<section class="card"><h2>QRのリンク先</h2>' +
+      "<li>保護者が二次元コードのリンクをLINEなどで送ると、名前ごと広がります。保護者には送らないようお願いしてください。</li></ul></section>" +
+      '<section class="card"><h2>二次元コードのリンク先</h2>' +
       '<p class="help">今開いているページのURL：' + (auto ? '<span class="url">' + esc(auto) + "</span>（自動で使います）" : "なし（手元のファイルとして開いています）") + "</p>" +
       '<label class="f" for="fBase">別のURLを使う場合だけ入力</label>' +
       '<input id="fBase" type="url" data-f="baseUrl" value="' + esc(S.baseUrl) + '" placeholder="https://〇〇.github.io/chanbara/" autocapitalize="off" spellcheck="false">' +
-      '<p class="help">このページを置いた場所のURLです。保護者のスマホはここからページを開き、名前はQRから受け取ります。</p></section>' +
+      '<p class="help">このページを置いた場所のURLです。保護者のスマホはここからページを開き、名前は二次元コードから受け取ります。</p></section>' +
       '<section class="card"><h2>バックアップ・別の端末へ</h2><p class="help">書き出したファイルを別の端末で読み込むと、同じ状態（勝敗の記録も含む）から続けられます。端末どうしの自動同期はありません。</p>' +
       '<div class="btns"><button class="btn" data-act="export">バックアップを書き出す</button>' +
       '<label class="btn filebtn">バックアップを読み込む<input type="file" accept="application/json,.json" data-f="import"></label></div></section>' +
@@ -1981,7 +1981,7 @@ var Sched = (function () {
     save(); renderMain();
     var msg = "No." + m1.no + "とNo." + m2.no + "を入れ替えました。印刷済みの記録用紙があれば、この2試合を書き直してください。";
     if (short.length) msg += " 休みが短くなる選手：" + short.join("、") + "。";
-    if (issuedHit.length) msg += " QRの再発行が必要です。";
+    if (issuedHit.length) msg += " 二次元コードの再発行が必要です。";
     toast(msg);
   }
 
