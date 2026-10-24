@@ -1,0 +1,2097 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src 'none'; form-action 'none'; base-uri 'none'; frame-src 'none'; object-src 'none'; media-src 'none'; font-src 'none'; worker-src 'none'; manifest-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f5f2ea">
+<title>総当たり戦ボード</title>
+<style>
+:root{--bg:#f5f2ea;--card:#fffdf8;--ink:#1d2129;--muted:#5f6470;--line:#e4ddcf;--line2:#cfc6b4;--accent:#b83a24;--accent-soft:#f8e6e0;--ai:#244f78;--ai-soft:#e4edf6;--ok:#2d7445;--ok-soft:#e2f0e5;--warn:#8a5300;--warn-soft:#fcf0da;color-scheme:light}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","BIZ UDPGothic","Yu Gothic UI",Meiryo,system-ui,sans-serif;font-size:16px;line-height:1.6;-webkit-text-size-adjust:100%}
+.num{font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit}
+button,.pe,.nb,.chip,.tab,label.btn{-webkit-tap-highlight-color:transparent}
+header.top{max-width:980px;margin:0 auto;padding:14px 16px 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:19px;letter-spacing:.03em;line-height:1.3}
+.brand small{display:block;font-weight:400;font-size:12.5px;color:var(--muted);letter-spacing:0}
+.lock{margin-left:auto;font-size:12px;color:var(--ai);background:var(--ai-soft);border-radius:999px;padding:4px 10px;white-space:nowrap}
+nav.tabs{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav.tabs .in{max-width:980px;margin:0 auto;display:flex;gap:2px;overflow-x:auto;padding:6px 10px;scrollbar-width:none}
+nav.tabs .in::-webkit-scrollbar{display:none}
+.tab{border:0;background:transparent;padding:8px 13px;border-radius:999px;font-size:15px;color:var(--muted);white-space:nowrap;cursor:pointer}
+.tab[aria-selected=true]{background:var(--ink);color:#fff;font-weight:700}
+.tab .ico,.tab .tsh{display:none}
+.pno{display:inline-flex;align-items:center;justify-content:center;min-width:1.75em;height:1.45em;padding:0 .3em;margin-right:.35em;border-radius:6px;background:var(--ink);color:#fff;font-size:.72em;font-weight:800;line-height:1;flex:none}
+.who{display:inline-flex;align-items:center;min-width:0}
+.nb.win .pno{background:var(--accent)}
+.nb.lose .pno{background:#b9bcc2}
+.tieinfo{display:block;font-size:12px;color:var(--ai);margin-top:2px}
+table.rk tr.tied td{background:#fbfaf6}
+main{max-width:980px;margin:0 auto;padding:16px 16px 96px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+h2{font-size:17px;margin:0 0 8px}
+label.f{display:block;margin:14px 0 5px;font-size:14px;font-weight:700}
+.help{font-size:13px;color:var(--muted);margin:4px 0 0}
+.help.c{text-align:center}
+input[type=text],input[type=number],input[type=url],input[type=search],select,textarea{font:inherit;font-size:16px;width:100%;padding:10px 12px;border:1px solid var(--line2);border-radius:10px;background:#fff;color:var(--ink)}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,.pe:focus-visible{outline:3px solid #7aa6d6;outline-offset:2px}
+textarea{min-height:210px;line-height:1.75;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+fieldset.radios{border:0;padding:0;margin:14px 0 0}
+fieldset.radios legend{font-size:14px;font-weight:700;padding:0;margin-bottom:4px}
+fieldset.radios label{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:15px}
+fieldset.radios input{width:20px;height:20px;accent-color:var(--accent)}
+.btn{border:1px solid var(--line2);background:#fff;padding:10px 16px;border-radius:10px;cursor:pointer;font-size:15px;min-height:44px;line-height:1.3;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.btn.small{min-height:38px;padding:6px 12px;font-size:14px}
+.btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.hot{border-color:var(--accent);color:var(--accent);font-weight:700}
+.btn.danger{border-color:var(--accent);color:var(--accent)}
+.btn.wide{width:100%;font-size:17px;min-height:52px}
+.btn:disabled{opacity:.5;cursor:default}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.btns.tight{margin-top:0}
+.filebtn input{display:none}
+.info p{margin:10px 0 0}
+.warn{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0 0}
+.ok{background:var(--ok-soft);color:var(--ok);border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0 0}
+.warnbox{border-color:#e9c98f;background:var(--warn-soft)}
+.warnbox h2{color:var(--warn)}
+details{margin-top:12px}
+summary{cursor:pointer;font-size:14px;font-weight:700;color:var(--ai);padding:6px 0}
+ul.ov{list-style:none;margin:8px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px}
+ul.ov li{display:flex;align-items:center;gap:8px}
+ul.ov li span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ul.ov select{width:auto;padding:6px 8px;font-size:15px}
+.prog{height:6px;background:var(--line);border-radius:6px;margin-top:14px;overflow:hidden}
+.prog .bar{height:100%;background:var(--accent);transition:width .15s}
+.sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 4px}
+.sum div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 6px;text-align:center}
+.sum b{display:block;font-size:20px;line-height:1.2}
+.sum span{font-size:12px;color:var(--muted)}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.progline{display:flex;align-items:center;gap:10px;font-size:14px;flex:1;min-width:200px}
+.pbar{flex:1;height:8px;background:var(--line);border-radius:8px;overflow:hidden;max-width:260px}
+.pbar span{display:block;height:100%;background:var(--ok)}
+.banner{background:var(--accent-soft);color:#7a2615;border-radius:10px;padding:10px 12px;font-size:14px;margin:0 0 10px}
+.round-h{font-size:12.5px;color:var(--muted);margin:16px 0 6px;display:flex;align-items:center;gap:8px;font-weight:700}
+.round-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.round-h.wait{font-weight:400;font-style:italic}
+.mlist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:8px}
+.m{display:flex;flex-direction:column;gap:8px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px 12px}
+.mh{display:flex;align-items:center;gap:10px;min-height:28px}
+.mh .tail{margin-left:auto;display:flex;align-items:center}
+.m .no{font-weight:800;font-size:16px}
+.stt{font-size:12px;color:var(--muted)}
+.stt.rec{color:var(--accent);font-weight:700}
+.stt.ff{color:var(--warn);font-weight:700}
+.cp{font-size:12px;background:var(--ai-soft);color:var(--ai);border-radius:6px;padding:2px 7px;white-space:nowrap;font-weight:700}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:stretch}
+.vs .x{align-self:center}
+.x{font-size:12px;color:var(--muted);font-weight:400}
+.fft{font-style:normal;font-size:11.5px;background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:1px 6px;font-weight:700;white-space:nowrap}
+.nb{border:1.5px solid var(--line2);border-bottom-width:3px;background:#fff;border-radius:12px;padding:6px 10px;font-weight:800;font-size:18px;cursor:pointer;min-height:52px;width:100%;display:flex;align-items:center;justify-content:center;gap:4px 6px;flex-wrap:wrap;text-align:center;overflow-wrap:anywhere;color:var(--ink);touch-action:manipulation}
+.nb small{font-size:12.5px;font-weight:400;color:var(--muted)}
+.nb:hover{border-color:var(--ink)}
+.nb:active{transform:translateY(1px);border-bottom-width:2px}
+.nb.win{background:var(--accent-soft);border-color:var(--accent);color:#6e2213}
+.nb.win small{color:#8a3a26;font-weight:700}
+.nb.lose{color:#a3a6ad;border-color:var(--line);border-bottom-width:1.5px;background:transparent;font-weight:700}
+.nb.static{cursor:default}
+.nb.static:hover{border-color:var(--line2)}
+.nb.win.static:hover{border-color:var(--accent)}
+.nb.lose.static:hover{border-color:var(--line)}
+.maru{width:16px;height:16px;border:2.8px solid var(--accent);border-radius:50%;display:inline-block;flex:none}
+.chk{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line2);background:#fff;cursor:pointer;display:grid;place-items:center;color:transparent;padding:0;flex:none}
+.chk:hover{color:var(--line2)}
+.chk[aria-pressed=true]{background:var(--ok);border-color:var(--ok);color:#fff}
+.chk:disabled{opacity:.3;cursor:default}
+.m.done{background:#f8f6f0}
+.m.done .no{color:#8b8f97}
+.m.checked{border-color:#b9d8c1;background:#f2f8f3}
+.m[data-act=pick]{cursor:pointer}
+.mlist.one{grid-template-columns:1fr;max-width:640px}
+.listhelp{margin:0 0 4px}
+.csum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 12px}
+.csum div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.csum span{display:block;font-size:12px;color:var(--muted)}
+.csum b{font-size:18px}
+.tblwrap{overflow-x:auto;margin-bottom:8px}
+table.rk{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:15px}
+table.rk th,table.rk td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left}
+table.rk tr:last-child td{border-bottom:0}
+table.rk th{font-size:12.5px;color:var(--muted);background:#f7f4ec;white-space:nowrap}
+table.rk .n{text-align:right;width:3.5em}
+table.rk .rkno{font-weight:800;width:4em;white-space:nowrap}
+table.rk .rkno small{font-size:11px;color:var(--muted);font-weight:400;margin-left:2px}
+table.rk tr.top1 .rkno{color:var(--accent)}
+table.rk tr.abs td{color:#8b8f97}
+.muted{color:var(--muted);font-weight:400}
+.imp{border:1px solid var(--line2);border-radius:12px;padding:12px;margin-top:10px;background:#fff}
+.imp-h{margin:0;font-weight:700;font-size:14px;overflow-wrap:anywhere}
+.imp .prev{font-size:14px;margin:10px 0 0}
+label.cb{display:flex;align-items:center;gap:8px;min-height:44px;font-size:15px}
+label.cb input{width:20px;height:20px;accent-color:var(--accent)}
+.m.sel{outline:3px solid var(--accent);outline-offset:-1px}
+.pickhint{font-size:12px;color:var(--accent);font-weight:700;min-width:3em;text-align:right}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px;scrollbar-width:none}
+.chip{border:1px solid var(--line2);background:#fff;border-radius:12px;padding:8px 14px;cursor:pointer;font-size:15px;font-weight:700;white-space:nowrap;display:flex;flex-direction:column;align-items:center;line-height:1.2}
+.chip small{font-weight:400;font-size:11.5px;color:var(--muted)}
+.chip[aria-selected=true]{background:var(--ai);border-color:var(--ai);color:#fff}
+.chip[aria-selected=true] small{color:#d6e3f1}
+.search{margin-bottom:10px}
+.plist{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:6px}
+.pr{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 8px 8px 12px}
+.pr .pn{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.3}
+.pr .pn b{overflow-wrap:anywhere}
+.pr .pn span{font-size:12px;color:var(--muted)}
+.pr.abs .pn b{text-decoration:line-through;color:#8b8f97}
+.st{font-size:11.5px;border-radius:6px;padding:2px 6px;background:#efece4;color:var(--muted);white-space:nowrap}
+.st.ok{background:var(--ok-soft);color:var(--ok)}
+.st.redo{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.dots{margin:0;padding-left:1.2em;font-size:14.5px}
+.dots li{margin:4px 0}
+.url{word-break:break-all;color:var(--ink)}
+dialog#dlg{border:0;border-radius:18px;padding:0;width:min(440px,calc(100vw - 24px));max-height:calc(100vh - 24px);background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+dialog#dlg::backdrop{background:rgba(20,22,28,.55)}
+.dlg-in{padding:16px}
+.dlg-h{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.dlg-t{margin:0;font-size:22px;font-weight:800}
+.dlg-t span{font-size:14px;font-weight:400;color:var(--muted);margin-left:2px}
+.qrbox{background:#fff;border-radius:12px;padding:8px;margin:12px auto 0;max-width:340px}
+.qrbox svg{display:block;width:100%;height:auto}
+#toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:12px 16px;border-radius:12px;font-size:14px;max-width:min(560px,calc(100vw - 32px));opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+.empty p{margin:0}
+/* 選手モード */
+.pv{max-width:560px;margin:0 auto;padding:22px 16px 48px}
+.pv-title{margin:0;font-size:13px;color:var(--muted);letter-spacing:.04em}
+.pv-name{margin:2px 0 0;font-size:28px;line-height:1.3}
+.pv-name span{font-size:16px;font-weight:400;color:var(--muted);margin-left:4px}
+.pv-meta{margin:4px 0 14px;font-size:13.5px;color:var(--muted)}
+ol.pl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.pe{display:grid;grid-template-columns:auto auto 1fr auto;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:54px}
+.pmode .pe{cursor:pointer}
+.pe-no{font-weight:800;font-size:17px;min-width:3.6em}
+.pe-opp{font-weight:700;overflow-wrap:anywhere}
+.pe-ck{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line2)}
+.pe.done{background:#f1efe8}
+.pe.done .pe-no,.pe.done .pe-opp{color:#8b8f97}
+.pe.done .pe-ck{background:var(--ok);border-color:var(--ok)}
+.pe.ff .pe-opp{color:#8b8f97}
+.pv-note{font-size:13px;color:var(--muted);margin:16px 0 0}
+.pv-safe{font-size:12px;color:var(--ai);background:var(--ai-soft);border-radius:10px;padding:8px 10px;margin:12px 0 0}
+.dlg-in ol.pl .pe{min-height:44px;padding:6px 10px}
+.dlg-in ol.pl .pe-ck{display:none}
+.ask{background:#fff;border:2px solid var(--accent);border-radius:14px;padding:12px 14px;margin:10px 0 14px}
+.ask p{margin:0 0 6px;font-size:15px}
+.ask .btns{margin-top:10px}
+.ask .pno{font-size:.8em}
+.kchips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 14px}
+.kchip{border:1.5px solid var(--line2);background:#fff;border-radius:999px;padding:6px 12px;font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:4px;cursor:pointer;color:var(--ink)}
+.kchip small{font-weight:400;font-size:11.5px;color:var(--muted);margin-left:2px}
+.kchip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}
+.kchip[aria-pressed=true] small{color:#c8ccd4}
+.kchip .pno{font-size:.78em}
+.kdot{width:10px;height:10px;border-radius:50%;background:var(--kc);flex:none;margin-right:2px}
+.pe.multi{border-left:6px solid var(--kc)}
+.kt{display:inline-flex;align-items:center;font-weight:800;color:var(--kc);margin-right:2px}
+.kt .pno{background:var(--kc)}
+.pe-opp{display:flex;flex-wrap:wrap;align-items:center;gap:2px 4px}
+.vline{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap}
+.opp{display:inline-flex;align-items:center;white-space:nowrap}
+.pe.multi .pe-opp{flex-direction:column;align-items:flex-start;gap:1px}
+.pe.multi .kt{font-size:14px}
+.sib{font-size:11px;background:var(--accent-soft);color:var(--accent);border-radius:6px;padding:1px 6px;font-weight:700;white-space:nowrap}
+.saved{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:16px}
+.saved h2{font-size:15px;margin:0 0 6px}
+.saved ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.saved li{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.saved li small{color:var(--muted);font-size:12px}
+.saved li .btn{margin-left:auto}
+.saved .pno{font-size:.8em}
+#print{display:none}
+.setup-grid{display:grid;gap:0 16px}
+.cards2{display:grid;gap:0 16px}
+.rule ol{margin:0}
+.pv-name span.pno{font-size:.62em;color:#fff;font-weight:800;margin:0 .35em 0 0;vertical-align:.18em;display:inline-flex}
+.pe-opp .pno{font-size:.78em;margin-left:.3em}
+.pr .pno{font-size:.9em}
+.courts-wide{display:grid;grid-template-columns:repeat(var(--cols),minmax(290px,1fr));gap:12px;overflow-x:auto;padding-bottom:6px}
+.ccol{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 10px 10px;min-width:0;display:flex;flex-direction:column}
+.ccol-h{margin:0 2px 8px;font-size:18px}
+.ccol .csum{gap:6px;margin-bottom:10px}
+.ccol .csum div{padding:6px 8px}
+.ccol .csum span{font-size:11px}
+.ccol .csum b{font-size:14px}
+.ccol .mlist.one{max-width:none;max-height:calc(100vh - 290px);min-height:240px;overflow-y:auto;position:relative;padding:2px 4px 2px 2px}
+.ccol .m{padding:8px 10px 10px}
+.ccol .nb{font-size:15px;min-height:46px;padding:4px 6px}
+/* タブレット以上 */
+@media (min-width:720px){
+  .t-rank .tblwrap,.t-rank .rule{max-width:900px}
+}
+@media (min-width:900px){
+  .cards2{grid-template-columns:1fr 1fr;align-items:start}
+}
+/* パソコン */
+@media (min-width:1100px){
+  header.top,nav.tabs .in,main{max-width:1360px}
+  main{padding-left:24px;padding-right:24px}
+  header.top,nav.tabs .in{padding-left:24px;padding-right:24px}
+  .setup-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+  .setup-grid textarea{min-height:360px}
+  .mlist{grid-template-columns:repeat(auto-fill,minmax(380px,1fr))}
+  .plist{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+}
+/* スマホ */
+@media (max-width:719px){
+  header.top{padding:12px 16px 6px}
+  .brand{font-size:18px}
+  .lock{font-size:11px;padding:3px 8px}
+  nav.tabs{position:fixed;top:auto;bottom:0;left:0;right:0;z-index:20;border-top:1px solid var(--line);border-bottom:0;background:rgba(245,242,234,.96);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);padding-bottom:env(safe-area-inset-bottom)}
+  nav.tabs .in{display:grid;grid-template-columns:repeat(6,1fr);gap:0;padding:4px 2px 2px;overflow:visible}
+  .tab{display:flex;flex-direction:column;align-items:center;gap:1px;padding:4px 0 3px;border-radius:12px;font-size:10.5px;letter-spacing:-.01em}
+  .tab .tl{display:none}
+  .tab .tsh{display:block;line-height:1.3}
+  .tab .ico{display:block;width:44px;height:28px;padding:3px 11px;border-radius:999px}
+  .tab[aria-selected=true]{background:transparent;color:var(--ink)}
+  .tab[aria-selected=true] .ico{background:var(--ink);color:#fff}
+  main{padding:12px 12px calc(96px + env(safe-area-inset-bottom))}
+  #toast{bottom:calc(82px + env(safe-area-inset-bottom))}
+  .sum{grid-template-columns:repeat(2,1fr)}
+  .mlist,.plist{grid-template-columns:1fr}
+  .csum b{font-size:15px}
+  .toolbar{gap:8px}
+  table.rk th,table.rk td{padding:8px 8px}
+  table.rk .n{width:2.6em}
+  table.rk .rkno{width:3em}
+  .card{padding:14px}
+  dialog#dlg{max-height:calc(100vh - 40px)}
+}
+@media print{
+  @page{size:A4;margin:10mm}
+  body{background:#fff}
+  body>*:not(#print){display:none!important}
+  #print{display:block;color:#000;font-size:10pt}
+  .pq{display:grid;grid-template-columns:repeat(3,1fr)}
+  .qc{border:1px dashed #999;padding:3mm 3mm 2mm;text-align:center;break-inside:avoid;height:69mm;display:flex;flex-direction:column;align-items:center}
+  .qc svg{width:46mm;height:46mm}
+  .qc-t{margin:0;font-size:8pt;color:#444}
+  .qc-n{margin:0 0 1mm;font-size:14pt;font-weight:800}
+  .qc-no{display:inline-block;border:1.5px solid #000;color:#000;border-radius:3px;padding:0 1.4mm;margin-right:1.6mm;font-size:11pt;line-height:1.3;vertical-align:1pt}
+  .qc-m{margin:1mm 0 0;font-size:8pt;color:#444}
+  .pt-h{font-size:13pt;margin:0 0 4mm}
+  table.pt{width:100%;border-collapse:collapse}
+  table.pt th,table.pt td{border:1px solid #888;padding:1.2mm 2mm;text-align:left}
+  table.pt th{background:#eee}
+  table.pt tr{break-inside:avoid}
+  table.pt tr.ff td{color:#777}
+  table.pt.sheet{font-size:10pt}
+  table.pt.sheet th{text-align:center;padding:1mm;white-space:nowrap}
+  table.pt.sheet thead th:first-child{width:14mm;white-space:normal}
+  table.pt.sheet td{height:9mm;padding:1mm 1.5mm}
+  table.pt.sheet td.c{text-align:center;width:10mm}
+  table.pt.sheet td.nm{font-weight:700;font-size:11.5pt}
+  table.pt.sheet td.kn{font-size:8pt;color:#444}
+  table.pt.sheet td.vs{text-align:center;color:#666;width:7mm}
+  table.pt.sheet td.mk{width:24mm;text-align:center;font-weight:700;letter-spacing:.05em}
+  table.pt thead{display:table-header-group}
+  .pt-note{font-size:9pt;color:#444;margin:2mm 0 0}
+  .pc{break-after:page}
+  .pc:last-child{break-after:auto}
+}
+</style>
+</head>
+<body>
+<div id="app"><noscript><p style="padding:16px">このアプリはJavaScriptをオンにすると動きます。</p></noscript></div>
+<dialog id="dlg" aria-label="QRコード"></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="print"></div>
+<script>
+var QR = (function () {
+  "use strict";
+  var ECC_PER_BLOCK = {
+    L: [-1, 7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30, 28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
+    M: [-1, 10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24, 28, 28, 26, 26, 26, 26, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28]
+  };
+  var NUM_BLOCKS = {
+    L: [-1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9, 10, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 24, 25],
+    M: [-1, 1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16, 17, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 33, 35, 37, 38, 40, 43, 45, 47, 49]
+  };
+  var FORMAT_BITS = { L: 1, M: 0 };
+
+  function rawModules(ver) {
+    var r = (16 * ver + 128) * ver + 64;
+    if (ver >= 2) {
+      var na = Math.floor(ver / 7) + 2;
+      r -= (25 * na - 10) * na - 55;
+      if (ver >= 7) r -= 36;
+    }
+    return r;
+  }
+  function dataCodewords(ver, ecl) {
+    return Math.floor(rawModules(ver) / 8) - ECC_PER_BLOCK[ecl][ver] * NUM_BLOCKS[ecl][ver];
+  }
+  function gfMul(x, y) {
+    var z = 0;
+    for (var i = 7; i >= 0; i--) {
+      z = (z << 1) ^ ((z >>> 7) * 0x11d);
+      z ^= ((y >>> i) & 1) * x;
+    }
+    return z & 0xff;
+  }
+  function rsDivisor(degree) {
+    var res = [];
+    for (var i = 0; i < degree - 1; i++) res.push(0);
+    res.push(1);
+    var root = 1;
+    for (i = 0; i < degree; i++) {
+      for (var j = 0; j < res.length; j++) {
+        res[j] = gfMul(res[j], root);
+        if (j + 1 < res.length) res[j] ^= res[j + 1];
+      }
+      root = gfMul(root, 0x02);
+    }
+    return res;
+  }
+  function rsRemainder(data, div) {
+    var res = div.map(function () { return 0; });
+    data.forEach(function (b) {
+      var f = b ^ res.shift();
+      res.push(0);
+      div.forEach(function (c, i) { res[i] ^= gfMul(c, f); });
+    });
+    return res;
+  }
+  function utf8(str) {
+    if (typeof TextEncoder !== "undefined") return Array.from(new TextEncoder().encode(str));
+    return Array.from(Buffer.from(str, "utf8"));
+  }
+  function alignPositions(ver) {
+    if (ver === 1) return [];
+    var size = ver * 4 + 17;
+    var na = Math.floor(ver / 7) + 2;
+    var step = ver === 32 ? 26 : Math.ceil((ver * 4 + 4) / (na * 2 - 2)) * 2;
+    var res = [6];
+    for (var pos = size - 7; res.length < na; pos -= step) res.splice(1, 0, pos);
+    return res;
+  }
+
+  function encode(text, eclPref) {
+    var bytes = utf8(text);
+    var ecl = eclPref || "M";
+    var ver;
+    for (ver = 1; ver <= 40; ver++) {
+      var ccBits = ver <= 9 ? 8 : 16;
+      var need = 4 + ccBits + bytes.length * 8;
+      if (need <= dataCodewords(ver, ecl) * 8) break;
+    }
+    if (ver > 40) {
+      if (ecl === "M") return encode(text, "L");
+      throw new Error("QRに入りきりません");
+    }
+    var cap = dataCodewords(ver, ecl) * 8;
+    var bits = [];
+    function push(val, len) { for (var i = len - 1; i >= 0; i--) bits.push((val >>> i) & 1); }
+    push(4, 4);
+    push(bytes.length, ver <= 9 ? 8 : 16);
+    bytes.forEach(function (b) { push(b, 8); });
+    push(0, Math.min(4, cap - bits.length));
+    push(0, (8 - (bits.length % 8)) % 8);
+    for (var pad = 0xec; bits.length < cap; pad ^= 0xec ^ 0x11) push(pad, 8);
+    var data = [];
+    for (var i = 0; i < bits.length; i += 8) {
+      var v = 0;
+      for (var k = 0; k < 8; k++) v = (v << 1) | bits[i + k];
+      data.push(v);
+    }
+
+    var nb = NUM_BLOCKS[ecl][ver], eccLen = ECC_PER_BLOCK[ecl][ver];
+    var rawCw = Math.floor(rawModules(ver) / 8);
+    var numShort = nb - (rawCw % nb);
+    var shortLen = Math.floor(rawCw / nb);
+    var blocks = [], div = rsDivisor(eccLen), idx = 0;
+    for (i = 0; i < nb; i++) {
+      var len = shortLen - eccLen + (i < numShort ? 0 : 1);
+      var dat = data.slice(idx, idx + len);
+      idx += len;
+      var ecc = rsRemainder(dat, div);
+      if (i < numShort) dat.push(0);
+      blocks.push(dat.concat(ecc));
+    }
+    var cw = [];
+    for (i = 0; i < blocks[0].length; i++) {
+      for (var j = 0; j < blocks.length; j++) {
+        if (i !== shortLen - eccLen || j >= numShort) cw.push(blocks[j][i]);
+      }
+    }
+
+    var size = ver * 4 + 17;
+    var mod = [], fn = [];
+    for (i = 0; i < size; i++) {
+      mod.push(new Array(size).fill(false));
+      fn.push(new Array(size).fill(false));
+    }
+    function setF(x, y, d) { mod[y][x] = d; fn[y][x] = true; }
+    for (i = 0; i < size; i++) { setF(6, i, i % 2 === 0); setF(i, 6, i % 2 === 0); }
+    function finder(cx, cy) {
+      for (var dy = -4; dy <= 4; dy++) for (var dx = -4; dx <= 4; dx++) {
+        var d = Math.max(Math.abs(dx), Math.abs(dy)), x = cx + dx, y = cy + dy;
+        if (x >= 0 && x < size && y >= 0 && y < size) setF(x, y, d !== 2 && d !== 4);
+      }
+    }
+    finder(3, 3); finder(size - 4, 3); finder(3, size - 4);
+    var ap = alignPositions(ver), last = ap.length - 1;
+    for (i = 0; i < ap.length; i++) for (j = 0; j < ap.length; j++) {
+      if ((i === 0 && j === 0) || (i === 0 && j === last) || (i === last && j === 0)) continue;
+      for (var dy = -2; dy <= 2; dy++) for (var dx = -2; dx <= 2; dx++)
+        setF(ap[i] + dx, ap[j] + dy, Math.max(Math.abs(dx), Math.abs(dy)) !== 1);
+    }
+    function drawFormat(mask) {
+      var d = (FORMAT_BITS[ecl] << 3) | mask, rem = d;
+      for (var t = 0; t < 10; t++) rem = (rem << 1) ^ ((rem >>> 9) * 0x537);
+      var b = ((d << 10) | rem) ^ 0x5412;
+      function bit(n) { return ((b >>> n) & 1) !== 0; }
+      for (var q = 0; q <= 5; q++) setF(8, q, bit(q));
+      setF(8, 7, bit(6)); setF(8, 8, bit(7)); setF(7, 8, bit(8));
+      for (q = 9; q < 15; q++) setF(14 - q, 8, bit(q));
+      for (q = 0; q < 8; q++) setF(size - 1 - q, 8, bit(q));
+      for (q = 8; q < 15; q++) setF(8, size - 15 + q, bit(q));
+      setF(8, size - 8, true);
+    }
+    drawFormat(0);
+    if (ver >= 7) {
+      var rem = ver;
+      for (i = 0; i < 12; i++) rem = (rem << 1) ^ ((rem >>> 11) * 0x1f25);
+      var vb = (ver << 12) | rem;
+      for (i = 0; i < 18; i++) {
+        var bt = ((vb >>> i) & 1) !== 0, a = size - 11 + (i % 3), c = Math.floor(i / 3);
+        setF(a, c, bt); setF(c, a, bt);
+      }
+    }
+    var bi = 0;
+    for (var right = size - 1; right >= 1; right -= 2) {
+      if (right === 6) right = 5;
+      for (var vert = 0; vert < size; vert++) for (j = 0; j < 2; j++) {
+        var x = right - j, up = ((right + 1) & 2) === 0, y = up ? size - 1 - vert : vert;
+        if (!fn[y][x] && bi < cw.length * 8) {
+          mod[y][x] = ((cw[bi >>> 3] >>> (7 - (bi & 7))) & 1) !== 0;
+          bi++;
+        }
+      }
+    }
+    function maskFn(m, x, y) {
+      switch (m) {
+        case 0: return (x + y) % 2 === 0;
+        case 1: return y % 2 === 0;
+        case 2: return x % 3 === 0;
+        case 3: return (x + y) % 3 === 0;
+        case 4: return (Math.floor(x / 3) + Math.floor(y / 2)) % 2 === 0;
+        case 5: return ((x * y) % 2) + ((x * y) % 3) === 0;
+        case 6: return (((x * y) % 2) + ((x * y) % 3)) % 2 === 0;
+        default: return (((x + y) % 2) + ((x * y) % 3)) % 2 === 0;
+      }
+    }
+    function applyMask(m) {
+      for (var yy = 0; yy < size; yy++) for (var xx = 0; xx < size; xx++)
+        if (!fn[yy][xx] && maskFn(m, xx, yy)) mod[yy][xx] = !mod[yy][xx];
+    }
+    function penalty() {
+      var p = 0, dark = 0, yy, xx;
+      function line(get) {
+        var s = 0, run = 1, prev = get(0), seq = [];
+        for (var t = 1; t < size; t++) {
+          var c = get(t);
+          if (c === prev) run++;
+          else { if (run >= 5) s += run - 2; run = 1; prev = c; }
+        }
+        if (run >= 5) s += run - 2;
+        for (t = 0; t + 10 < size + 1; t++) {
+          var pat = "";
+          for (var u = 0; u < 11 && t + u < size; u++) pat += get(t + u) ? "1" : "0";
+          if (pat === "10111010000" || pat === "00001011101") s += 40;
+        }
+        return s;
+      }
+      for (yy = 0; yy < size; yy++) p += line(function (t) { return mod[yy][t]; });
+      for (xx = 0; xx < size; xx++) p += line(function (t) { return mod[t][xx]; });
+      for (yy = 0; yy < size - 1; yy++) for (xx = 0; xx < size - 1; xx++) {
+        var c = mod[yy][xx];
+        if (c === mod[yy][xx + 1] && c === mod[yy + 1][xx] && c === mod[yy + 1][xx + 1]) p += 3;
+      }
+      for (yy = 0; yy < size; yy++) for (xx = 0; xx < size; xx++) if (mod[yy][xx]) dark++;
+      var total = size * size;
+      p += Math.floor(Math.abs(dark * 20 - total * 10) / total) * 10;
+      return p;
+    }
+    var best = 0, bestP = Infinity;
+    for (var m = 0; m < 8; m++) {
+      applyMask(m); drawFormat(m);
+      var pp = penalty();
+      if (pp < bestP) { bestP = pp; best = m; }
+      applyMask(m);
+    }
+    applyMask(best); drawFormat(best);
+    return { size: size, version: ver, ecl: ecl, modules: mod };
+  }
+
+  function toSvg(qr, opts) {
+    opts = opts || {};
+    var border = opts.border == null ? 4 : opts.border;
+    var n = qr.size + border * 2, d = "";
+    for (var y = 0; y < qr.size; y++) for (var x = 0; x < qr.size; x++)
+      if (qr.modules[y][x]) d += "M" + (x + border) + " " + (y + border) + "h1v1h-1z";
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + n + " " + n +
+      '" shape-rendering="crispEdges" role="img" aria-label="' + (opts.label || "QRコード") +
+      '"><rect width="100%" height="100%" fill="#fff"/><path d="' + d + '" fill="#000"/></svg>';
+  }
+
+  return { encode: encode, toSvg: toSvg };
+})();
+
+
+var XL = (function () {
+  "use strict";
+  var NS = "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+  var NSR = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+  var NSP = "http://schemas.openxmlformats.org/package/2006/relationships";
+  var enc = new TextEncoder();
+
+  var CRC = (function () {
+    var t = [];
+    for (var n = 0; n < 256; n++) {
+      var c = n;
+      for (var k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+      t[n] = c >>> 0;
+    }
+    return t;
+  })();
+  function crc32(b) {
+    var c = 0xffffffff;
+    for (var i = 0; i < b.length; i++) c = CRC[(c ^ b[i]) & 0xff] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  }
+  function zip(files) {
+    var d = new Date();
+    var dosTime = (d.getHours() << 11) | (d.getMinutes() << 5) | Math.floor(d.getSeconds() / 2);
+    var dosDate = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+    var parts = [], central = [], offset = 0;
+    files.forEach(function (f) {
+      var name = enc.encode(f.name), data = f.data, crc = crc32(data);
+      var lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true);
+      lh.setUint16(8, 0, true); lh.setUint16(10, dosTime, true); lh.setUint16(12, dosDate, true);
+      lh.setUint32(14, crc, true); lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true);
+      lh.setUint16(26, name.length, true); lh.setUint16(28, 0, true);
+      parts.push(new Uint8Array(lh.buffer), name, data);
+      var ch = new DataView(new ArrayBuffer(46));
+      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true);
+      ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true); ch.setUint16(12, dosTime, true); ch.setUint16(14, dosDate, true);
+      ch.setUint32(16, crc, true); ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true);
+      ch.setUint16(28, name.length, true); ch.setUint32(42, offset, true);
+      central.push(new Uint8Array(ch.buffer), name);
+      offset += 30 + name.length + data.length;
+    });
+    var cdSize = 0;
+    central.forEach(function (c) { cdSize += c.length; });
+    var end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+    end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+    return parts.concat(central, [new Uint8Array(end.buffer)]);
+  }
+
+  function x(s) {
+    return String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+  function colName(i) {
+    var s = "";
+    i++;
+    while (i > 0) { var r = (i - 1) % 26; s = String.fromCharCode(65 + r) + s; i = Math.floor((i - 1) / 26); }
+    return s;
+  }
+  function colIndex(ref) {
+    var m = /^([A-Z]+)/i.exec(ref || ""), n = 0;
+    if (!m) return -1;
+    var s = m[1].toUpperCase();
+    for (var i = 0; i < s.length; i++) n = n * 26 + (s.charCodeAt(i) - 64);
+    return n - 1;
+  }
+
+  /* 0 標準 / 1 見出し / 2 罫線 / 3 罫線中央 / 4 タイトル / 5 罫線グレー / 6 罫線中央太字(大) / 7 罫線名前(大)
+     8 縦書き見出し / 9 斜線マス / 10 注記 / 11 罫線中央グレー */
+  var F = '<font><sz val="11"/><name val="Yu Gothic"/><family val="3"/><charset val="128"/></font>';
+  var STYLES = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="' + NS + '">' +
+    '<fonts count="5">' + F +
+    '<font><b/><sz val="11"/><name val="Yu Gothic"/><family val="3"/><charset val="128"/></font>' +
+    '<font><b/><sz val="15"/><name val="Yu Gothic"/><family val="3"/><charset val="128"/></font>' +
+    '<font><sz val="10"/><color rgb="FF777777"/><name val="Yu Gothic"/><family val="3"/><charset val="128"/></font>' +
+    '<font><b/><sz val="14"/><name val="Yu Gothic"/><family val="3"/><charset val="128"/></font></fonts>' +
+    '<fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>' +
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFEDEAE2"/><bgColor indexed="64"/></patternFill></fill>' +
+    '<fill><patternFill patternType="solid"><fgColor rgb="FFD9D6CE"/><bgColor indexed="64"/></patternFill></fill></fills>' +
+    '<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border>' +
+    '<border><left style="thin"><color rgb="FF666666"/></left><right style="thin"><color rgb="FF666666"/></right>' +
+    '<top style="thin"><color rgb="FF666666"/></top><bottom style="thin"><color rgb="FF666666"/></bottom><diagonal/></border></borders>' +
+    '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+    '<cellXfs count="12">' +
+    '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+    '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf>' +
+    '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment vertical="center"/></xf>' +
+    '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    '<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="center"/></xf>' +
+    '<xf numFmtId="0" fontId="3" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="center"/></xf>' +
+    '<xf numFmtId="0" fontId="4" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    '<xf numFmtId="0" fontId="4" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" shrinkToFit="1"/></xf>' +
+    '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="top" textRotation="255"/></xf>' +
+    '<xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    '<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/>' +
+    '<xf numFmtId="0" fontId="3" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf>' +
+    '</cellXfs><cellStyles count="1"><cellStyle name="標準" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+
+  /* sheets: [{name, rows:[[cell]], cols:[w], heights:{rowIndex:pt}, merges:[], freeze:n, printTitles:[r1,r2], landscape}]
+     cell: null | 文字列 | 数値 | {v, s} */
+  function build(sheets) {
+    var sst = [], map = {}, files = [], defined = [];
+    function si(s) { if (!Object.prototype.hasOwnProperty.call(map, s)) { map[s] = sst.length; sst.push(s); } return map[s]; }
+    sheets.forEach(function (sh, idx) {
+      var o = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="' + NS + '" xmlns:r="' + NSR + '">' +
+        '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>' +
+        '<sheetViews><sheetView workbookViewId="0"' + (idx === 0 ? ' tabSelected="1"' : "") + ">" +
+        (sh.freeze ? '<pane ySplit="' + sh.freeze + '" topLeftCell="A' + (sh.freeze + 1) + '" activePane="bottomLeft" state="frozen"/>' : "") +
+        "</sheetView></sheetViews>" +
+        '<sheetFormatPr defaultRowHeight="18"/>';
+      if (sh.cols) o += "<cols>" + sh.cols.map(function (w, i) { return '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>'; }).join("") + "</cols>";
+      o += "<sheetData>";
+      sh.rows.forEach(function (row, ri) {
+        var ht = sh.heights && sh.heights[ri];
+        o += '<row r="' + (ri + 1) + '"' + (ht ? ' ht="' + ht + '" customHeight="1"' : "") + ">";
+        (row || []).forEach(function (cell, ci) {
+          if (cell == null) return;
+          var v = cell, s = 0;
+          if (typeof cell === "object") { v = cell.v; s = cell.s || 0; }
+          var ref = colName(ci) + (ri + 1);
+          if (v == null || v === "") { if (s) o += '<c r="' + ref + '" s="' + s + '"/>'; return; }
+          if (typeof v === "number") o += '<c r="' + ref + '" s="' + s + '"><v>' + v + "</v></c>";
+          else o += '<c r="' + ref + '" s="' + s + '" t="s"><v>' + si(String(v)) + "</v></c>";
+        });
+        o += "</row>";
+      });
+      o += "</sheetData>";
+      if (sh.merges && sh.merges.length) o += '<mergeCells count="' + sh.merges.length + '">' + sh.merges.map(function (m) { return '<mergeCell ref="' + m + '"/>'; }).join("") + "</mergeCells>";
+      o += '<printOptions horizontalCentered="1"/><pageMargins left="0.4" right="0.4" top="0.5" bottom="0.6" header="0.3" footer="0.3"/>' +
+        '<pageSetup paperSize="9" orientation="' + (sh.landscape ? "landscape" : "portrait") + '" fitToWidth="1" fitToHeight="' + (sh.onePage ? 1 : 0) + '"/>' +
+        "<headerFooter><oddFooter>&amp;R&amp;P / &amp;N</oddFooter></headerFooter></worksheet>";
+      files.push({ name: "xl/worksheets/sheet" + (idx + 1) + ".xml", data: enc.encode(o) });
+      if (sh.printTitles) defined.push('<definedName name="_xlnm.Print_Titles" localSheetId="' + idx + '">\'' +
+        x(sh.name).replace(/'/g, "''") + "'!$" + sh.printTitles[0] + ":$" + sh.printTitles[1] + "</definedName>");
+    });
+    var n = sheets.length;
+    var wb = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<workbook xmlns="' + NS + '" xmlns:r="' + NSR + '"><bookViews><workbookView/></bookViews><sheets>' +
+      sheets.map(function (sh, i) { return '<sheet name="' + x(sh.name) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>'; }).join("") +
+      "</sheets>" + (defined.length ? "<definedNames>" + defined.join("") + "</definedNames>" : "") + "</workbook>";
+    var wbRels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="' + NSP + '">' +
+      sheets.map(function (sh, i) { return '<Relationship Id="rId' + (i + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>'; }).join("") +
+      '<Relationship Id="rId' + (n + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>' +
+      '<Relationship Id="rId' + (n + 2) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/></Relationships>';
+    var ct = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+      sheets.map(function (sh, i) { return '<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'; }).join("") +
+      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
+      '<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/></Types>';
+    var rels = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="' + NSP + '"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+    var sstXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<sst xmlns="' + NS + '" count="' + sst.length + '" uniqueCount="' + sst.length + '">' +
+      sst.map(function (s) { return '<si><t xml:space="preserve">' + x(s) + "</t></si>"; }).join("") + "</sst>";
+    var all = [
+      { name: "[Content_Types].xml", data: enc.encode(ct) },
+      { name: "_rels/.rels", data: enc.encode(rels) },
+      { name: "xl/workbook.xml", data: enc.encode(wb) },
+      { name: "xl/_rels/workbook.xml.rels", data: enc.encode(wbRels) },
+      { name: "xl/styles.xml", data: enc.encode(STYLES) },
+      { name: "xl/sharedStrings.xml", data: enc.encode(sstXml) }
+    ].concat(files);
+    return zip(all);
+  }
+  function blob(sheets) {
+    return new Blob(build(sheets), { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  }
+
+  /* ---------- 読み込み ---------- */
+  function u16(b, o) { return b[o] | (b[o + 1] << 8); }
+  function u32(b, o) { return (b[o] | (b[o + 1] << 8) | (b[o + 2] << 16) | (b[o + 3] << 24)) >>> 0; }
+  function inflate(d) {
+    if (typeof DecompressionStream === "undefined") return Promise.reject(new Error("old-browser"));
+    var s = new Blob([d]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+    return new Response(s).arrayBuffer().then(function (ab) { return new Uint8Array(ab); });
+  }
+  function unzip(buf) {
+    var b = new Uint8Array(buf), eocd = -1, i;
+    for (i = b.length - 22; i >= Math.max(0, b.length - 65557); i--) if (u32(b, i) === 0x06054b50) { eocd = i; break; }
+    if (eocd < 0) throw new Error("zip");
+    var n = u16(b, eocd + 10), off = u32(b, eocd + 16), ent = {}, dec = new TextDecoder();
+    for (var k = 0; k < n; k++) {
+      if (u32(b, off) !== 0x02014b50) throw new Error("zip");
+      var method = u16(b, off + 10), csize = u32(b, off + 20), nlen = u16(b, off + 28), xlen = u16(b, off + 30), clen = u16(b, off + 32), lho = u32(b, off + 42);
+      var name = dec.decode(b.subarray(off + 46, off + 46 + nlen));
+      var start = lho + 30 + u16(b, lho + 26) + u16(b, lho + 28);
+      ent[name] = { method: method, data: b.subarray(start, start + csize) };
+      off += 46 + nlen + xlen + clen;
+    }
+    return function get(name) {
+      var e = ent[name];
+      if (!e) return Promise.resolve(null);
+      return (e.method === 0 ? Promise.resolve(e.data) : inflate(e.data)).then(function (raw) { return new TextDecoder().decode(raw); });
+    };
+  }
+  function readXlsx(buf) {
+    var get = unzip(buf), P = new DOMParser();
+    function X(s) { return P.parseFromString(s, "application/xml"); }
+    function all(n, tag) { return Array.prototype.slice.call(n.getElementsByTagNameNS("*", tag)); }
+    var wb, rels, sst = [];
+    return get("xl/workbook.xml").then(function (t) {
+      wb = X(t);
+      return get("xl/_rels/workbook.xml.rels");
+    }).then(function (t) {
+      rels = X(t);
+      return get("xl/sharedStrings.xml");
+    }).then(function (t) {
+      if (t) all(X(t), "si").forEach(function (s) {
+        var v = "";
+        all(s, "t").forEach(function (te) { if (te.parentNode && te.parentNode.localName === "rPh") return; v += te.textContent; });
+        sst.push(v);
+      });
+      var sheet = all(wb, "sheet")[0];
+      var rid = sheet.getAttributeNS(NSR, "id") || sheet.getAttribute("r:id");
+      var rel = all(rels, "Relationship").filter(function (r) { return r.getAttribute("Id") === rid; })[0];
+      var target = rel.getAttribute("Target");
+      var path = target.charAt(0) === "/" ? target.slice(1) : "xl/" + target.replace(/^\.\//, "");
+      return get(path);
+    }).then(function (t) {
+      var doc = X(t), rows = [], rIdx = -1;
+      all(doc, "row").forEach(function (row) {
+        var r = parseInt(row.getAttribute("r"), 10);
+        rIdx = r ? r - 1 : rIdx + 1;
+        var cIdx = -1, arr = rows[rIdx] = rows[rIdx] || [];
+        all(row, "c").forEach(function (c) {
+          var ci = colIndex(c.getAttribute("r"));
+          cIdx = ci >= 0 ? ci : cIdx + 1;
+          var tp = c.getAttribute("t"), v;
+          var vEl = all(c, "v")[0];
+          if (tp === "s") v = vEl ? sst[parseInt(vEl.textContent, 10)] : "";
+          else if (tp === "inlineStr") v = all(c, "t").map(function (e) { return e.textContent; }).join("");
+          else v = vEl ? vEl.textContent : "";
+          arr[cIdx] = v == null ? "" : String(v);
+        });
+      });
+      return norm(rows);
+    });
+  }
+  function decodeText(buf) {
+    var b = new Uint8Array(buf);
+    try { return new TextDecoder("utf-8", { fatal: true }).decode(b); } catch (e) { }
+    try { return new TextDecoder("shift_jis").decode(b); } catch (e) { }
+    return new TextDecoder().decode(b);
+  }
+  function parseCSV(text) {
+    text = text.replace(/^﻿/, "");
+    var first = text.split("\n")[0], delim = first.indexOf("\t") >= 0 ? "\t" : ",";
+    var rows = [], row = [], f = "", q = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text.charAt(i);
+      if (q) {
+        if (c === '"') { if (text.charAt(i + 1) === '"') { f += '"'; i++; } else q = false; }
+        else f += c;
+      } else if (c === '"' && f === "") q = true;
+      else if (c === delim) { row.push(f); f = ""; }
+      else if (c === "\n") { row.push(f); rows.push(row); row = []; f = ""; }
+      else if (c !== "\r") f += c;
+    }
+    if (f !== "" || row.length) { row.push(f); rows.push(row); }
+    return norm(rows);
+  }
+  function norm(rows) {
+    var w = 0, out = [];
+    rows.forEach(function (r) { if (r && r.length > w) w = r.length; });
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i] || [], o = [];
+      for (var j = 0; j < w; j++) o.push(r[j] == null ? "" : String(r[j]).trim());
+      out.push(o);
+    }
+    while (out.length && out[out.length - 1].every(function (v) { return !v; })) out.pop();
+    return out;
+  }
+  function readTable(file) {
+    return file.arrayBuffer().then(function (buf) {
+      var b = new Uint8Array(buf);
+      if (b[0] === 0x50 && b[1] === 0x4b) return readXlsx(buf);
+      if (b[0] === 0xd0 && b[1] === 0xcf) throw new Error("xls");
+      return parseCSV(decodeText(buf));
+    });
+  }
+
+  return { blob: blob, build: build, readTable: readTable, readXlsx: readXlsx, parseCSV: parseCSV, colName: colName };
+})();
+
+
+var Sched = (function () {
+  "use strict";
+  function rng(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6d2b79f5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function attempt(n, rest, courts, rnd, strict) {
+    var wRem = 1 + rnd() * 2, wWait = rnd() * 1.5, wNoise = 0.3 + rnd() * 2.5;
+    var remaining = [], i, j;
+    for (i = 0; i < n; i++) for (j = i + 1; j < n; j++) remaining.push([i, j]);
+    var last = new Array(n).fill(-1e9), remCount = new Array(n).fill(n - 1);
+    var capacity = 0;
+    for (i = 0; i < n; i++) capacity += 1 / (rest[i] + 1);
+    var cap = Math.max(1, Math.min(courts, Math.ceil(capacity / 2 - 1e-9)));
+    var rounds = [], r = 0;
+    while (remaining.length) {
+      var cands = [], k, a, b;
+      for (k = 0; k < remaining.length; k++) {
+        a = remaining[k][0]; b = remaining[k][1];
+        if (r - last[a] > rest[a] && r - last[b] > rest[b]) {
+          var wait = Math.min(r - last[a], r - last[b], 60);
+          cands.push([wRem * (remCount[a] + remCount[b]) + wWait * wait + rnd() * wNoise, k]);
+        }
+      }
+      var limit = cap;
+      if (!cands.length && strict) { rounds.push([]); r++; continue; }
+      if (!cands.length) {
+        for (k = 0; k < remaining.length; k++) {
+          a = remaining[k][0]; b = remaining[k][1];
+          var slack = Math.min(r - last[a] - rest[a], r - last[b] - rest[b]);
+          cands.push([slack * 1000 + remCount[a] + remCount[b] + rnd(), k]);
+        }
+        limit = 1;
+      }
+      cands.sort(function (x, y) { return y[0] - x[0]; });
+      var used = {}, pick = [];
+      for (k = 0; k < cands.length && pick.length < limit; k++) {
+        var p = remaining[cands[k][1]];
+        if (!used[p[0]] && !used[p[1]]) { used[p[0]] = used[p[1]] = true; pick.push(cands[k][1]); }
+      }
+      var ms = pick.map(function (q) { return remaining[q]; });
+      pick.sort(function (x, y) { return y - x; }).forEach(function (q) { remaining.splice(q, 1); });
+      for (k = ms.length - 1; k > 0; k--) {
+        var s = Math.floor(rnd() * (k + 1)), tmp = ms[k]; ms[k] = ms[s]; ms[s] = tmp;
+      }
+      ms.forEach(function (m) {
+        if (rnd() < 0.5) { var t = m[0]; m[0] = m[1]; m[1] = t; }
+        last[m[0]] = last[m[1]] = r;
+        remCount[m[0]]--; remCount[m[1]]--;
+      });
+      rounds.push(ms);
+      r++;
+    }
+    return rounds;
+  }
+
+  function evaluate(rounds, n, rest) {
+    var lastPos = new Array(n).fill(-1), minGap = new Array(n).fill(Infinity), viol = 0;
+    rounds.forEach(function (ms, ri) {
+      ms.forEach(function (m) {
+        m.forEach(function (p) {
+          if (lastPos[p] >= 0) {
+            var gap = ri - lastPos[p] - 1;
+            if (gap < minGap[p]) minGap[p] = gap;
+            if (gap < rest[p]) viol++;
+          }
+          lastPos[p] = ri;
+        });
+      });
+    });
+    return { violations: viol, minGap: minGap };
+  }
+
+  function build(opts, onProgress, onDone) {
+    var n = opts.n, courts = opts.courts, rest = opts.rest, tries = opts.tries || 240;
+    var seed = opts.seed || (Date.now() >>> 0);
+    var best = null, bestScore = Infinity, done = 0;
+    function step() {
+      var until = Math.min(tries, done + 12);
+      for (; done < until; done++) {
+        var rounds = attempt(n, rest, courts, rng(seed + done * 7919), !!opts.strict);
+        var ev = evaluate(rounds, n, rest);
+        var score = ev.violations * 1e6 + rounds.length;
+        if (score < bestScore) { bestScore = score; best = { rounds: rounds, eval: ev }; }
+      }
+      if (onProgress) onProgress(done / tries);
+      if (done < tries) setTimeout(step, 0);
+      else onDone(best);
+    }
+    step();
+  }
+
+  function minRounds(n, courts, rest) {
+    var cap = 0, worst = 0;
+    for (var i = 0; i < n; i++) {
+      cap += 1 / (rest[i] + 1);
+      worst = Math.max(worst, (n - 2) * (rest[i] + 1) + 1);
+    }
+    var perRound = Math.min(courts, cap / 2);
+    return {
+      usableCourts: Math.min(courts, Math.ceil(cap / 2 - 1e-9)),
+      bound: Math.max(Math.ceil((n * (n - 1)) / 2 / perRound), worst)
+    };
+  }
+
+  return { build: build, evaluate: evaluate, attempt: attempt, rng: rng, minRounds: minRounds };
+})();
+
+
+(function () {
+  "use strict";
+  var KEY = "chanbara-rr-v1";
+  var PAY = "R3";
+  var CHECK_SVG = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  function stampNow() {
+    var d = new Date();
+    return (d.getMonth() + 1) + "/" + d.getDate() + " " + d.getHours() + ":" + pad2(d.getMinutes());
+  }
+  function fileStamp() {
+    var d = new Date();
+    return d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + "-" + pad2(d.getHours()) + pad2(d.getMinutes());
+  }
+  function fmtMin(m) {
+    m = Math.round(m);
+    var h = Math.floor(m / 60), mm = m % 60;
+    return h ? "約" + h + "時間" + (mm ? mm + "分" : "") : "約" + mm + "分";
+  }
+  function clean(s) { return String(s).replace(/[\t\r\n]/g, " ").trim(); }
+  function b64e(str) {
+    var bytes = new TextEncoder().encode(str), bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  function b64d(s) {
+    s = s.replace(/-/g, "+").replace(/_/g, "/");
+    while (s.length % 4) s += "=";
+    var bin = atob(s), bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new TextDecoder().decode(bytes);
+  }
+  function encodePayload(p) {
+    var lines = [PAY, clean(p.title).slice(0, 24), p.ev, String(p.num), clean(p.name), p.stamp];
+    p.entries.forEach(function (e) {
+      lines.push(e.no.toString(36) + "\t" + e.court + "\t" + e.oppNum + "\t" + clean(e.opp) + (e.ff ? "\tx" : ""));
+    });
+    return b64e(lines.join("\n"));
+  }
+  function decodePayload(s) {
+    var lines = b64d(s).split("\n");
+    if (lines[0] === "R1") return {
+      title: lines[1], ev: "t:" + lines[1], num: "", name: lines[2], stamp: lines[3],
+      entries: lines.slice(4).filter(Boolean).map(function (l) {
+        var f = l.split("\t");
+        return { no: parseInt(f[0], 36), court: f[1], oppNum: "", opp: f[2], ff: f[3] === "x" };
+      })
+    };
+    var v2 = lines[0] === "R2", head = v2 ? 5 : 6;
+    if (!v2 && lines[0] !== PAY) throw new Error("bad");
+    return {
+      title: lines[1], ev: v2 ? "t:" + lines[1] : lines[2],
+      num: lines[head - 3], name: lines[head - 2], stamp: lines[head - 1],
+      entries: lines.slice(head).filter(Boolean).map(function (l) {
+        var f = l.split("\t");
+        return { no: parseInt(f[0], 36), court: f[1], oppNum: f[2], opp: f[3], ff: f[4] === "x" };
+      })
+    };
+  }
+  function pnoTag(n) { return n === "" || n == null ? "" : '<span class="pno num">' + esc(n) + "</span>"; }
+  function courtTag(c) { return '<span class="cp">' + esc(c) + "コート</span>"; }
+  function listPlayer(entries, tappable) {
+    return '<ol class="pl">' + entries.map(function (e) {
+      return '<li class="pe' + (e.ff ? " ff" : "") + '"' + (tappable ? ' role="button" tabindex="0"' : "") + ">" +
+        '<span class="pe-no num">No.' + e.no + "</span>" + courtTag(e.court) +
+        '<span class="pe-opp"><span class="x">vs</span>' + pnoTag(e.oppNum) + "<span>" + esc(e.opp) + "</span>" + (e.ff ? '<em class="fft">不戦</em>' : "") + "</span>" +
+        '<span class="pe-ck" aria-hidden="true"></span></li>';
+    }).join("") + "</ol>";
+  }
+  function safeFile(s) { return String(s).replace(/[\\/:*?"<>|\s]+/g, "_").slice(0, 40) || "総当たり"; }
+  function download(blob, name) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  }
+
+  /* ---------- 選手モード（QRから開いたとき） ---------- */
+  var root = document.getElementById("app");
+  window.addEventListener("hashchange", function () {
+    if ((location.hash || "").indexOf("#p=") === 0) location.reload();
+  });
+  if ((location.hash || "").indexOf("#p=") === 0) { playerMode(location.hash.slice(3)); return; }
+
+  function playerMode(code) {
+    document.body.className = "pmode";
+    var FKEY = "chanbara-family-v1", TTL = 3 * 24 * 3600 * 1000, MAXK = 6;
+    var COLORS = ["#b83a24", "#244f78", "#2d7445", "#8a5300", "#6b3fa0", "#0f6a6a"];
+    var p;
+    try { p = decodePayload(code); } catch (e) { p = null; }
+    if (!p) {
+      root.innerHTML = '<main class="pv"><div class="card"><h2>読み取れませんでした</h2><p>QRコードをもう一度読み取ってください。</p></div></main>';
+      return;
+    }
+    var canStore = true, F = null, pending = false, solo = false, only = null, memDone = {};
+    function loadF() {
+      try {
+        var t = localStorage.getItem(FKEY);
+        if (!t) return null;
+        var o = JSON.parse(t);
+        if (!o || !Array.isArray(o.kids) || !o.kids.length || Date.now() - (o.saved || 0) > TTL) { localStorage.removeItem(FKEY); return null; }
+        return o;
+      } catch (e) { canStore = false; return null; }
+    }
+    function saveF() {
+      if (!F) return;
+      F.saved = Date.now();
+      try { localStorage.setItem(FKEY, JSON.stringify(F)); } catch (e) { canStore = false; }
+    }
+    function clearF() { try { localStorage.removeItem(FKEY); } catch (e) { } F = null; }
+    function kid(pp) { return { num: pp.num, name: pp.name, stamp: pp.stamp, entries: pp.entries }; }
+    function same(a, b) { return String(a.num) === String(b.num) && a.name === b.name; }
+    function colorOf(i) { return COLORS[i % COLORS.length]; }
+
+    F = loadF();
+    if (F && F.ev === p.ev) {
+      var idx = -1;
+      F.kids.forEach(function (k, i) { if (same(k, p)) idx = i; });
+      if (idx >= 0) { F.kids[idx] = kid(p); F.title = p.title; saveF(); }
+      else if (F.kids.length >= MAXK) solo = true;
+      else pending = true;
+    } else {
+      F = { ev: p.ev, title: p.title, kids: [kid(p)], done: {}, saved: Date.now() };
+      saveF();
+      if (!canStore) { F = null; solo = true; }
+    }
+
+    function shownKids() { return pending || solo || !F ? [kid(p)] : F.kids; }
+    function isDone(no) { return pending || solo || !F ? !!memDone[no] : !!F.done[no]; }
+
+    function draw() {
+      var kids = shownKids(), multi = kids.length > 1;
+      if (only != null && only >= kids.length) only = null;
+      document.title = multi ? "きょうだいの試合" : kids[0].name + "さんの試合";
+      var h = '<main class="pv"><p class="pv-title">' + esc((F && F.title) || p.title || "総当たり戦") + "</p>";
+      if (pending) {
+        h += '<div class="ask"><p><b>' + pnoTag(p.num) + esc(p.name) + "さん</b>の試合を読み取りました。</p>" +
+          "<p>このスマホには " + F.kids.map(function (k) { return "<b>" + esc(k.name) + "さん</b>"; }).join("、") + " の試合が保存されています。きょうだいとして追加して、まとめて表示しますか？</p>" +
+          '<div class="btns"><button class="btn primary" data-pact="add">追加してまとめる</button>' +
+          '<button class="btn" data-pact="solo">追加しない（この子だけ見る）</button></div></div>';
+      }
+      if (multi) {
+        h += '<h1 class="pv-name">きょうだいの試合<span>（' + kids.length + "人）</span></h1>" +
+          '<div class="kchips" role="group" aria-label="表示する子">' +
+          '<button class="kchip" data-pact="only" data-i="" aria-pressed="' + (only == null) + '">全員</button>' +
+          kids.map(function (k, i) {
+            var live = k.entries.filter(function (e) { return !e.ff; }).length;
+            return '<button class="kchip" data-pact="only" data-i="' + i + '" aria-pressed="' + (only === i) + '" style="--kc:' + colorOf(i) + '">' +
+              '<span class="kdot"></span>' + pnoTag(k.num) + esc(k.name) + '<small class="num">' + live + "試合</small></button>";
+          }).join("") + "</div>";
+      } else {
+        var k0 = kids[0], live0 = k0.entries.filter(function (e) { return !e.ff; }).length;
+        h += '<h1 class="pv-name">' + pnoTag(k0.num) + esc(k0.name) + "<span>さんの試合</span></h1>" +
+          '<p class="pv-meta num">全' + live0 + "試合 ・ " + esc(k0.stamp) + " 発行</p>";
+      }
+      var rows = {};
+      kids.forEach(function (k, ki) {
+        if (multi && only != null && only !== ki) return;
+        k.entries.forEach(function (e) {
+          var r = rows[e.no] = rows[e.no] || { no: e.no, court: e.court, items: [] };
+          r.items.push({ ki: ki, k: k, e: e });
+        });
+      });
+      var list = Object.keys(rows).map(function (n) { return rows[n]; }).sort(function (a, b) { return a.no - b.no; });
+      h += '<ol class="pl">' + list.map(function (r) {
+        var it = r.items[0], ff = r.items.some(function (x) { return x.e.ff; });
+        var body;
+        if (r.items.length > 1) {
+          var b2 = r.items[1];
+          body = '<span class="kt" style="--kc:' + colorOf(it.ki) + '">' + pnoTag(it.k.num) + esc(it.k.name) + '</span><span class="vline"><span class="x">vs</span>' +
+            '<span class="kt" style="--kc:' + colorOf(b2.ki) + '">' + pnoTag(b2.k.num) + esc(b2.k.name) + '</span><span class="sib">きょうだい対決</span></span>';
+        } else {
+          body = (multi ? '<span class="kt" style="--kc:' + colorOf(it.ki) + '">' + pnoTag(it.k.num) + esc(it.k.name) + "</span>" : "") +
+            '<span class="vline"><span class="x">vs</span><span class="opp">' + pnoTag(it.e.oppNum) + esc(it.e.opp) + "</span></span>";
+        }
+        return '<li class="pe' + (multi ? " multi" : "") + (ff ? " ff" : "") + (isDone(r.no) ? " done" : "") + '" data-no="' + r.no + '" role="button" tabindex="0"' +
+          (multi ? ' style="--kc:' + colorOf(it.ki) + '"' : "") + ">" +
+          '<span class="pe-no num">No.' + r.no + "</span>" + courtTag(r.court) +
+          '<span class="pe-opp">' + body + (ff ? '<em class="fft">不戦</em>' : "") + "</span>" +
+          '<span class="pe-ck" aria-hidden="true"></span></li>';
+      }).join("") + "</ol>";
+      h += '<p class="pv-note">試合番号の順に呼び出します。進み具合は会場の呼び出しで確認してください。終わった試合をタップすると印がつきます' +
+        (pending || solo || !F ? "（この画面の中だけ）。" : "。") + "</p>";
+      if (F && !pending && !solo) {
+        h += '<section class="saved"><h2>このスマホに保存中</h2><ul>' + F.kids.map(function (k, i) {
+          return '<li style="--kc:' + colorOf(i) + '"><span class="kdot"></span>' + pnoTag(k.num) + "<b>" + esc(k.name) + '</b><small class="num">' + esc(k.stamp) + " 発行</small>" +
+            (F.kids.length > 1 ? '<button class="btn small" data-pact="drop" data-i="' + i + '">外す</button>' : "") + "</li>";
+        }).join("") + "</ul>" +
+          '<p class="help">きょうだいのQRを続けて読み取ると、ここに追加できます。保存はこのスマホの中だけで、最後に読み取ってから3日たつと自動で消えます。</p>' +
+          '<div class="btns"><button class="btn small danger" data-pact="clear">この端末から消す</button></div></section>';
+      } else if (!canStore) {
+        h += '<p class="pv-safe">このブラウザでは保存ができないため、きょうだいをまとめて表示できません。</p>';
+      }
+      h += '<p class="pv-safe">このページは通信をしません。名前はQRコードの中と、このスマホの中だけにあります。</p></main>';
+      root.innerHTML = h;
+    }
+    function toggleDone(no) {
+      if (pending || solo || !F) memDone[no] = !memDone[no];
+      else { F.done[no] = !F.done[no]; if (!F.done[no]) delete F.done[no]; saveF(); }
+      var li = root.querySelector('.pe[data-no="' + no + '"]');
+      if (li) li.classList.toggle("done", isDone(no));
+    }
+    root.addEventListener("click", function (ev) {
+      var b = ev.target.closest("[data-pact]");
+      if (b) {
+        var a = b.getAttribute("data-pact"), i = b.getAttribute("data-i");
+        if (a === "add") { F.kids.push(kid(p)); pending = false; saveF(); window.scrollTo(0, 0); }
+        else if (a === "solo") { pending = false; solo = true; }
+        else if (a === "only") { only = i === "" ? null : +i; }
+        else if (a === "drop") {
+          var k = F.kids[+i];
+          if (!confirm(k.name + "さんを、このスマホの保存から外しますか？")) return;
+          F.kids.splice(+i, 1); only = null;
+          if (!F.kids.length) { clearF(); solo = true; } else saveF();
+        } else if (a === "clear") {
+          if (!confirm("このスマホに保存した試合の一覧と印を、すべて消しますか？")) return;
+          clearF(); solo = true; only = null;
+        }
+        draw();
+        return;
+      }
+      var li = ev.target.closest(".pe");
+      if (li) toggleDone(+li.getAttribute("data-no"));
+    });
+    root.addEventListener("keydown", function (ev) {
+      var li = ev.target.closest && ev.target.closest(".pe");
+      if (li && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); toggleDone(+li.getAttribute("data-no")); }
+    });
+    draw();
+  }
+
+  /* ---------- 運営モード ---------- */
+  function defaults() {
+    return {
+      v: 1, title: "", courts: 4, rest: 2, minutes: 2, strict: true, roster: "", overrides: {},
+      players: [], matches: [], result: null, issued: {}, dirty: {}, baseUrl: "",
+      tab: "setup", court: 1, onlyOpen: false, hideChecked: false, genAt: ""
+    };
+  }
+  function migrate(o) {
+    (o.matches || []).forEach(function (m) {
+      if (m.win === undefined) m.win = null;
+      if (m.chk === undefined) m.chk = false;
+      delete m.done;
+    });
+    return o;
+  }
+  function load() {
+    try {
+      var t = localStorage.getItem(KEY);
+      if (!t) return null;
+      var o = JSON.parse(t);
+      if (o && o.v === 1) return migrate(Object.assign(defaults(), o));
+    } catch (e) { }
+    return null;
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } }
+  var S = load() || defaults();
+  function freshU() { return { swap: false, sel: null, gen: null, q: "", ovOpen: false, imp: null, wide: false }; }
+  var U = freshU();
+
+  function parseRoster() {
+    var rows = S.roster.split(/\n/).map(function (l) {
+      var f = l.split(/\t|,|，/);
+      return { name: clean(f[0] || ""), kana: clean(f[1] || "") };
+    }).filter(function (r) { return r.name; });
+    var names = rows.map(function (r) { return r.name; }), kanas = rows.map(function (r) { return r.kana; });
+    var seen = {}, dups = [];
+    names.forEach(function (n) { if (seen[n]) { if (seen[n] === 1) dups.push(n); seen[n]++; } else seen[n] = 1; });
+    return { names: names, kanas: kanas, dups: dups };
+  }
+  function syncKana() {
+    if (!S.players.length || rosterChanged()) return;
+    var k = parseRoster().kanas, changed = false;
+    S.players.forEach(function (p, i) { var v = k[i] || ""; if ((p.kana || "") !== v) { p.kana = v; changed = true; } });
+    if (changed) save();
+  }
+  function pkana(id) { var p = S.players[id]; return (p && p.kana) || ""; }
+  function restOf(name) { var o = S.overrides[name]; return o == null ? S.rest : o; }
+  function pname(id) { var p = S.players[id]; return p ? p.name : "?"; }
+  function pnum(id) { return id + 1; }
+  function CL(c) { c = +c; return c >= 1 && c <= 26 ? String.fromCharCode(64 + c) : String(c); }
+  function ptext(id) { return pnum(id) + "　" + pname(id); }
+  function pHTML(id) { return pnoTag(pnum(id)) + '<span class="nm">' + esc(pname(id)) + "</span>"; }
+  function isWide() { return !!(window.matchMedia && window.matchMedia("(min-width: 1100px)").matches); }
+  function absent(id) { return !!(S.players[id] && S.players[id].absent); }
+  function isFF(m) { return !m.win && (absent(m.a) || absent(m.b)); }
+  function settled(m) { return !!m.win || isFF(m); }
+  function winnerId(m) {
+    if (m.win) return m.win === "a" ? m.a : m.b;
+    if (isFF(m)) {
+      if (absent(m.a) && !absent(m.b)) return m.b;
+      if (absent(m.b) && !absent(m.a)) return m.a;
+    }
+    return null;
+  }
+  function byNo(no) { for (var i = 0; i < S.matches.length; i++) if (S.matches[i].no === no) return S.matches[i]; return null; }
+  function courtCount() { var C = 0; S.matches.forEach(function (m) { if (m.court > C) C = m.court; }); return C; }
+  function rosterChanged() {
+    if (!S.players.length) return false;
+    var names = parseRoster().names;
+    if (names.length !== S.players.length) return true;
+    for (var i = 0; i < names.length; i++) if (names[i] !== S.players[i].name) return true;
+    return false;
+  }
+  function autoBase() { var l = location; return /^https?:$/.test(l.protocol) ? l.origin + l.pathname : ""; }
+  function baseUrl() { return (S.baseUrl || autoBase()).replace(/#.*$/, ""); }
+
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("on");
+    clearTimeout(toast.tm);
+    toast.tm = setTimeout(function () { t.classList.remove("on"); }, 3800);
+  }
+
+  /* ----- 順位 ----- */
+  function standings() {
+    var st = S.players.map(function (p) { return { id: p.id, name: p.name, absent: p.absent, w: 0, l: 0, ffw: 0, rem: 0 }; });
+    var beat = {};
+    S.matches.forEach(function (m) {
+      var w = winnerId(m);
+      if (w == null) {
+        if (!(absent(m.a) && absent(m.b))) { st[m.a].rem++; st[m.b].rem++; }
+        return;
+      }
+      var l = w === m.a ? m.b : m.a;
+      st[w].w++;
+      if (!m.win) st[w].ffw++; else st[l].l++;
+      beat[w + "-" + l] = true;
+    });
+    var active = st.filter(function (s) { return !s.absent; });
+    function resolve(group) {
+      if (group.length < 2) return [group];
+      var mini = {};
+      group.forEach(function (g) {
+        mini[g.id] = 0;
+        group.forEach(function (h) { if (h !== g && beat[g.id + "-" + h.id]) mini[g.id]++; });
+      });
+      var vals = {};
+      group.forEach(function (g) { vals[mini[g.id]] = true; });
+      if (Object.keys(vals).length === 1) return [group];
+      var sorted = group.slice().sort(function (a, b) { return mini[b.id] - mini[a.id] || a.id - b.id; });
+      var out = [], cur = [];
+      sorted.forEach(function (g, i) {
+        if (i && mini[g.id] !== mini[sorted[i - 1].id]) { out.push(cur); cur = []; }
+        cur.push(g);
+      });
+      out.push(cur);
+      return out.reduce(function (acc, sub) { return acc.concat(resolve(sub)); }, []);
+    }
+    var byW = {};
+    active.forEach(function (s) { (byW[s.w] = byW[s.w] || []).push(s); });
+    Object.keys(byW).forEach(function (w) {
+      var g = byW[w];
+      if (g.length < 2) return;
+      g.forEach(function (s) {
+        var c = 0;
+        g.forEach(function (h) { if (h !== s && beat[s.id + "-" + h.id]) c++; });
+        s.tieN = g.length; s.tieW = c;
+      });
+    });
+    var blocks = [];
+    Object.keys(byW).map(Number).sort(function (a, b) { return b - a; }).forEach(function (w) {
+      blocks = blocks.concat(resolve(byW[w].sort(function (a, b) { return a.id - b.id; })));
+    });
+    var list = [], pos = 1;
+    blocks.forEach(function (bk) {
+      bk.forEach(function (s) { s.rank = pos; s.tie = bk.length > 1; list.push(s); });
+      pos += bk.length;
+    });
+    st.filter(function (s) { return s.absent; }).forEach(function (s) { s.rank = null; list.push(s); });
+    return list;
+  }
+
+  function ico(d) { return '<svg class="ico" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + d + "</svg>"; }
+  var TABS = [
+    ["setup", "名簿・設定", "設定", ico('<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>')],
+    ["all", "記録・全体", "記録", ico('<rect x="4" y="3.5" width="16" height="17" rx="2.5"/><path d="M8 9l2 2 4-4M8 15.5h8"/>')],
+    ["court", "コート別・照合", "コート", ico('<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M12 4.5v15M3.5 12h17"/>')],
+    ["rank", "順位", "順位", ico('<path d="M8 20v-6h8v6M3.5 20v-3.5H8M16 13V8.5h-8V13M16 20v-4h4.5v4M2.5 20h19"/>')],
+    ["players", "選手・QR", "QR", ico('<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/>')],
+    ["data", "データ・出力", "データ", ico('<path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19.5h14"/>')]
+  ];
+  function render() {
+    root.innerHTML =
+      '<header class="top"><div class="brand">総当たり戦ボード<small id="brandSub">' + esc(S.title || "スポーツチャンバラ") + "</small></div>" +
+      '<span class="lock">端末内だけで動作・通信なし</span></header>' +
+      '<nav class="tabs" aria-label="画面切り替え"><div class="in" role="tablist">' +
+      TABS.map(function (t) {
+        return '<button class="tab" role="tab" data-act="tab" data-tab="' + t[0] + '" aria-selected="' + (S.tab === t[0]) + '" aria-label="' + t[1] + '">' +
+          t[3] + '<span class="tl">' + t[1] + '</span><span class="tsh" aria-hidden="true">' + t[2] + "</span></button>";
+      }).join("") + "</div></nav><main id=\"main\"></main>";
+    renderMain();
+  }
+  function renderMain() {
+    var v = { setup: vSetup, all: vAll, court: vCourt, rank: vRank, players: vPlayers, data: vData }[S.tab] || vSetup;
+    var main = document.getElementById("main");
+    main.className = "t-" + S.tab;
+    main.innerHTML = v();
+    if (S.tab === "setup") rosterInfo();
+    if (S.tab === "court" && U.wide) scrollCourtCols();
+  }
+  function scrollCourtCols() {
+    Array.prototype.forEach.call(document.querySelectorAll(".ccol"), function (col) {
+      var list = col.querySelector(".mlist"), c = +col.getAttribute("data-c");
+      var first = S.matches.filter(function (m) { return m.court === c && !(S.hideChecked && m.chk) && (!settled(m) || !m.chk); })[0];
+      var el = first && document.getElementById("m" + first.no);
+      if (list && el) list.scrollTop = Math.max(0, el.offsetTop - 8);
+    });
+  }
+  function needMatches() {
+    return '<div class="card empty"><h2>まだ組み合わせがありません</h2><p>「名簿・設定」で名簿を入れて、組み合わせを作ってください。</p>' +
+      '<div class="btns"><button class="btn primary" data-act="tab" data-tab="setup">名簿・設定へ</button></div></div>';
+  }
+
+  /* ----- 名簿・設定 ----- */
+  function vSetup() {
+    var restOpts = "";
+    for (var r = 0; r <= 6; r++) restOpts += '<option value="' + r + '"' + (S.rest === r ? " selected" : "") + ">" + r + "巡</option>";
+    var h = '<div class="setup-grid"><div class="col"><section class="card"><h2>大会の設定</h2>' +
+      '<label class="f" for="fTitle">大会名（QRの画面や出力にも出ます）</label>' +
+      '<input id="fTitle" type="text" data-f="title" value="' + esc(S.title) + '" placeholder="例）秋の総当たり戦" maxlength="24">' +
+      '<div class="row2"><div><label class="f" for="fCourts">コート数（Aコート・Bコート…）</label>' +
+      '<input id="fCourts" type="number" inputmode="numeric" min="1" max="16" data-f="courts" value="' + S.courts + '"></div>' +
+      '<div><label class="f" for="fMin">1試合の目安（分）</label>' +
+      '<input id="fMin" type="number" inputmode="decimal" min="0.5" max="30" step="0.5" data-f="minutes" value="' + S.minutes + '"></div></div>' +
+      '<p class="help">目安は入れ替えの時間も含めた1試合あたりの分数です。所要時間の計算にだけ使います。</p>' +
+      '<label class="f" for="fRest">試合間隔（試合のあと最低何巡休むか）</label>' +
+      '<select id="fRest" data-f="rest">' + restOpts + "</select>" +
+      '<p class="help">1巡＝全コートで1試合ずつ進むあいだ。「2巡」なら、試合に出たあと2巡は出番がありません。</p>' +
+      '<fieldset class="radios"><legend>休みが足りなくなるとき</legend>' +
+      '<label><input type="radio" name="strict" data-f="strict" value="1"' + (S.strict ? " checked" : "") + "> 休みを優先（待ちを入れる）</label>" +
+      '<label><input type="radio" name="strict" data-f="strict" value="0"' + (!S.strict ? " checked" : "") + "> 時間を優先（詰める）</label></fieldset>" +
+      "</section>" + (S.result && S.players.length ? resultCard() : "") + '</div><div class="col">';
+    h += '<section class="card"><h2>名簿</h2>' +
+      '<div class="btns tight"><label class="btn filebtn">スプレッドシートから取り込む（.xlsx／.csv）<input type="file" accept=".xlsx,.csv,.txt,.tsv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-f="rosterFile"></label></div>' +
+      '<p class="help">ファイルはこの端末の中だけで読み込みます。名前の列をコピーして下の欄に貼り付けてもOKです。</p>' +
+      '<div id="impBox">' + impHTML() + "</div>" +
+      '<label class="f" for="fRoster">1行に1人ずつ入力</label>' +
+      '<textarea id="fRoster" data-f="roster" placeholder="例）&#10;山田はると,やまだはると&#10;佐藤ゆい,さとうゆい&#10;そうた" autocomplete="off" autocapitalize="off" spellcheck="false">' + esc(S.roster) + "</textarea>" +
+      '<p class="help">上から順に選手番号 1, 2, 3… が付きます（取り込んだスプレッドシートの並び順のまま）。ふりがなを入れるときは「名前,ふりがな」と書きます（ふりがなは記録用紙にだけ出ます）。</p>' +
+      '<div id="rosterInfo" class="info" aria-live="polite"></div>' +
+      '<details id="ovBox"' + (U.ovOpen ? " open" : "") + '><summary>選手ごとに試合間隔を変える（任意）</summary><div id="ovList"></div></details>' +
+      '<div class="btns"><button class="btn primary" data-act="generate" id="genBtn"' + (U.gen != null ? " disabled" : "") + ">組み合わせを作る</button>" +
+      '<button class="btn" data-act="sample">サンプル30人を入れる</button></div>' +
+      '<div id="genProg" class="prog"' + (U.gen == null ? " hidden" : "") + '><div class="bar" style="width:' + Math.round((U.gen || 0) * 100) + '%"></div></div>' +
+      "</section></div></div>";
+    return h;
+  }
+  function impHTML() {
+    var I = U.imp;
+    if (!I) return "";
+    if (I.err) return '<p class="warn">' + esc(I.err) + "</p>";
+    function colOpts(sel) {
+      return I.rows[0].map(function (v, i) {
+        var label = XL.colName(i) + "列" + (I.header && v ? "：" + v : "");
+        return '<option value="' + i + '"' + (i === sel ? " selected" : "") + ">" + esc(label) + "</option>";
+      }).join("");
+    }
+    var names = impNames();
+    return '<div class="imp"><p class="imp-h">「' + esc(I.file) + "」を読み込みました</p>" +
+      '<div class="row2"><div><label class="f" for="impCol">名前の列</label><select id="impCol" data-f="impCol">' + colOpts(I.col) + "</select></div>" +
+      '<div><label class="f" for="impKana">ふりがなの列（任意）</label><select id="impKana" data-f="impKana"><option value="-1"' + (I.kcol < 0 ? " selected" : "") + ">なし</option>" + colOpts(I.kcol) + "</select></div></div>" +
+      '<label class="cb"><input type="checkbox" data-f="impHead"' + (I.header ? " checked" : "") + "> 1行目は見出し</label>" +
+      '<p class="prev"><b>' + names.length + "人</b>：" + esc(names.slice(0, 5).map(function (n, i) { return (i + 1) + " " + n.name + (n.kana ? "（" + n.kana + "）" : ""); }).join("、")) + (names.length > 5 ? " …" : "") + "</p>" +
+      '<p class="help">上から順に選手番号が付きます。名前とふりがな以外の列は取り込みません。</p>' +
+      '<div class="btns"><button class="btn primary small" data-act="impApply"' + (names.length ? "" : " disabled") + ">この内容で名簿を置きかえる</button>" +
+      '<button class="btn small" data-act="impCancel">やめる</button></div></div>';
+  }
+  function impNames() {
+    var I = U.imp;
+    if (!I || I.err) return [];
+    return I.rows.slice(I.header ? 1 : 0).map(function (r) {
+      return { name: clean(r[I.col] || "").replace(/[,，]/g, " "), kana: I.kcol >= 0 ? clean(r[I.kcol] || "").replace(/[,，]/g, " ") : "" };
+    }).filter(function (e) { return e.name; });
+  }
+  function startImport(file) {
+    XL.readTable(file).then(function (rows) {
+      rows = rows.filter(function (r) { return r.some(function (v) { return v; }); });
+      if (!rows.length) throw new Error("empty");
+      var head = /名前|氏名|選手|なまえ|ニックネーム|name/i, kanaHead = /ふりがな|フリガナ|よみ|ヨミ|読み|かな|カナ|kana|yomi|furigana/i;
+      var col = -1, kcol = -1, header = false;
+      rows[0].forEach(function (v, i) {
+        if (kanaHead.test(v)) { if (kcol < 0) { kcol = i; header = true; } }
+        else if (col < 0 && head.test(v)) { col = i; header = true; }
+      });
+      if (col < 0) {
+        var best = -1;
+        rows[0].forEach(function (_, i) {
+          if (i === kcol) return;
+          var n = rows.filter(function (r) { return r[i] && !/^[\d.\-\/:]+$/.test(r[i]); }).length;
+          if (n > best) { best = n; col = i; }
+        });
+      }
+      U.imp = { file: file.name, rows: rows, col: col, kcol: kcol, header: header };
+      document.getElementById("impBox").innerHTML = impHTML();
+    }).catch(function (e) {
+      var msg = e && e.message === "xls" ? "古い形式（.xls）は読み込めません。.xlsx か .csv で保存し直してから選んでください。" :
+        e && e.message === "old-browser" ? "このブラウザでは .xlsx を読み込めません。.csv で保存し直すか、名前の列をコピーして貼り付けてください。" :
+          "このファイルは読み込めませんでした。.xlsx か .csv を選んでください。";
+      U.imp = { err: msg };
+      document.getElementById("impBox").innerHTML = impHTML();
+    });
+  }
+  function rosterInfo() {
+    var el = document.getElementById("rosterInfo");
+    if (!el) return;
+    syncKana();
+    var pr = parseRoster(), n = pr.names.length, h = "";
+    if (n >= 2) {
+      var total = n * (n - 1) / 2;
+      var rest = pr.names.map(restOf);
+      var mr = Sched.minRounds(n, Math.max(1, S.courts | 0), rest);
+      h += '<p class="num"><b>' + n + "人</b> → 全" + total + "試合（1人" + (n - 1) + "試合）</p>" +
+        '<p class="num help">この設定だと最短でも' + mr.bound + "巡・" + fmtMin(mr.bound * S.minutes) + "ほど" +
+        (mr.usableCourts < S.courts ? "。同時に使えるコートは最大" + mr.usableCourts + "面です" : "") + "</p>";
+    } else if (n === 1) h += "<p>2人以上入れてください。</p>";
+    if (pr.dups.length) h += '<p class="warn">同じ名前があります：' + pr.dups.map(esc).join("、") + "。区別がつくように変えてください（例：はるとA）。</p>";
+    if (rosterChanged()) h += '<p class="warn">名簿が前回の組み合わせと変わっています。作り直すと試合番号がすべて変わります。</p>';
+    el.innerHTML = h;
+    renderOverrides();
+  }
+  function renderOverrides() {
+    var box = document.getElementById("ovList");
+    if (!box) return;
+    var names = parseRoster().names;
+    if (!names.length) { box.innerHTML = '<p class="help">名簿を入れると選べるようになります。</p>'; return; }
+    box.innerHTML = '<p class="help">体力に合わせて休みを長くしたい子だけ変えてください。長くした子がいると、全体の時間がのびることがあります。</p>' +
+      '<ul class="ov">' + names.map(function (n) {
+        var o = S.overrides[n], opts = '<option value="">標準（' + S.rest + "巡）</option>";
+        for (var r = 0; r <= 8; r++) opts += '<option value="' + r + '"' + (o === r ? " selected" : "") + ">" + r + "巡</option>";
+        return '<li><span>' + esc(n) + '</span><select data-f="ov" data-name="' + esc(n) + '" aria-label="' + esc(n) + 'さんの試合間隔">' + opts + "</select></li>";
+      }).join("") + "</ul>";
+  }
+  function resultCard() {
+    var r = S.result, n = S.players.length;
+    var h = '<section class="card result"><h2>組み合わせ結果</h2><div class="sum num">' +
+      "<div><b>" + S.matches.length + "</b><span>試合</span></div>" +
+      "<div><b>" + (n - 1) + "</b><span>試合／人</span></div>" +
+      "<div><b>" + r.rounds + "</b><span>巡</span></div>" +
+      "<div><b>" + fmtMin(r.rounds * S.minutes).replace("約", "") + "</b><span>目安時間</span></div></div>";
+    if (r.violations && r.violations.length) {
+      h += '<p class="warn">休みが設定より短くなる選手がいます：' + r.violations.map(function (v) { return esc(v.name) + "（最短" + Math.max(0, v.gap) + "巡）"; }).join("、") +
+        "。「休みを優先」にするか、試合間隔を短くすると解消できます。</p>";
+    } else h += '<p class="ok">全員、設定した試合間隔を守れています。</p>';
+    if (r.empties) h += '<p class="help">休みを守るために、試合のない巡が' + r.empties + "回あります（終盤に使うコートが減る時間が出ます）。</p>";
+    if (r.usable < S.courts) h += '<p class="help">この人数と試合間隔では、同時に使えるのは最大' + r.usable + "面です。</p>";
+    h += '<p class="help">' + esc(S.genAt) + " 作成 ・ 目安時間は1試合" + S.minutes + "分で計算</p>" +
+      '<div class="btns"><button class="btn primary" data-act="xlsxSheets">コート別の記録用紙を出力（.xlsx）</button>' +
+      '<button class="btn" data-act="tab" data-tab="all">記録・全体へ</button>' +
+      '<button class="btn" data-act="tab" data-tab="players">選手・QRへ</button></div></section>';
+    return h;
+  }
+  function generate() {
+    var pr = parseRoster();
+    if (pr.names.length < 2) { toast("名簿を2人以上入れてください"); return; }
+    if (pr.dups.length) { toast("同じ名前があります。区別がつくように変えてください"); return; }
+    var courts = Math.max(1, Math.min(16, S.courts | 0));
+    if (S.players.length) {
+      var recorded = S.matches.filter(function (m) { return m.win; }).length;
+      var msg = "組み合わせを作り直すと、試合番号がすべて変わります。" +
+        (recorded ? "\n記録した勝敗（" + recorded + "試合分）も消えます。" : "") +
+        (Object.keys(S.issued).length ? "\n配ったQRコードや印刷した記録用紙も使えなくなります。" : "") + "\n作り直しますか？";
+      if (!confirm(msg)) return;
+    }
+    var names = pr.names, rest = names.map(restOf);
+    U.gen = 0;
+    renderMain();
+    Sched.build({ n: names.length, courts: courts, rest: rest, strict: S.strict, tries: names.length > 40 ? 100 : 240 },
+      function (f) {
+        U.gen = f;
+        var b = document.querySelector("#genProg .bar");
+        if (b) b.style.width = Math.round(f * 100) + "%";
+      },
+      function (best) {
+        var matches = [], no = 1, empties = 0;
+        best.rounds.forEach(function (ms, ri) {
+          if (!ms.length) empties++;
+          ms.forEach(function (m, ci) {
+            matches.push({ no: no++, round: ri + 1, court: ci + 1, a: m[0], b: m[1], win: null, chk: false });
+          });
+        });
+        S.players = names.map(function (nm, i) { return { id: i, name: nm, kana: pr.kanas[i] || "", rest: rest[i], absent: false }; });
+        S.matches = matches;
+        S.issued = {}; S.dirty = {};
+        S.courts = courts;
+        S.genAt = stampNow();
+        S.ev = Date.now().toString(36);
+        var viol = [];
+        best.eval.minGap.forEach(function (g, i) { if (g < rest[i]) viol.push({ name: names[i], gap: g }); });
+        S.result = { rounds: best.rounds.length, empties: empties, violations: viol, usable: Sched.minRounds(names.length, courts, rest).usableCourts };
+        S.court = 1;
+        U.gen = null;
+        save();
+        renderMain();
+        toast("組み合わせができました（全" + matches.length + "試合）");
+        var rc = document.querySelector(".result");
+        if (rc) rc.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+  }
+
+  /* ----- 試合カード ----- */
+  function nameBtn(m, side) {
+    var id = side === "a" ? m.a : m.b, w = winnerId(m), ff = isFF(m);
+    var isW = w === id, isL = w != null && !isW;
+    var cls = "nb" + (isW ? " win" : "") + (isL ? " lose" : "");
+    var label = ff ? (isW ? "不戦勝" : "欠席") : isW ? "の勝ち" : isL ? "" : "の勝ち";
+    var inner = (isW ? '<i class="maru" aria-hidden="true"></i>' : "") +
+      '<span class="who">' + pHTML(id) + "</span>" + (label ? "<small>" + label + "</small>" : "");
+    if (ff || U.swap) return '<span class="' + cls + ' static">' + inner + "</span>";
+    return '<button class="' + cls + '" data-act="win" data-no="' + m.no + '" data-side="' + side + '" aria-pressed="' + isW + '" aria-label="No.' + m.no + " " +
+      pnum(id) + "番 " + esc(pname(id)) + (isW ? "の勝ち（記録済み。押すと取り消し）" : "の勝ちとして記録") + '">' + inner + "</button>";
+  }
+  function rowOpts() { return S.tab === "court" ? { noCourt: true, chk: true } : {}; }
+  function rowHTML(m, opts) {
+    opts = opts || {};
+    var cls = "m" + (opts.noCourt ? " nc" : "") + (settled(m) ? " done" : "") + (isFF(m) ? " ff" : "") + (U.swap && U.sel === m.no ? " sel" : "") + (m.chk ? " checked" : "");
+    var tail = "";
+    if (U.swap) tail = '<span class="pickhint">' + (U.sel === m.no ? "選択中" : "") + "</span>";
+    else if (opts.chk) tail = '<button class="chk" data-act="chk" data-no="' + m.no + '" aria-pressed="' + !!m.chk + '" aria-label="No.' + m.no + (m.chk ? " 照合済みを取り消す" : " 紙と照合済みにする") + '"' +
+      (settled(m) ? "" : " disabled") + ">" + CHECK_SVG + "</button>";
+    var state = isFF(m) ? '<span class="stt ff">不戦</span>' : m.win ? '<span class="stt rec">記録済み</span>' : '<span class="stt">勝った方を押す</span>';
+    return '<li class="' + cls + '" id="m' + m.no + '"' + (U.swap ? ' data-act="pick" data-no="' + m.no + '"' : "") + ">" +
+      '<div class="mh"><span class="no num">No.' + m.no + "</span>" +
+      (opts.noCourt ? "" : '<span class="cp num">' + CL(m.court) + "コート</span>") + (U.swap ? "" : state) +
+      '<span class="tail">' + tail + "</span></div>" +
+      '<div class="vs">' + nameBtn(m, "a") + '<span class="x">vs</span>' + nameBtn(m, "b") + "</div></li>";
+  }
+  function progress() {
+    var done = 0, chk = 0;
+    S.matches.forEach(function (m) { if (settled(m)) { done++; if (m.chk) chk++; } });
+    return { total: S.matches.length, done: done, chk: chk };
+  }
+  function progHTML() {
+    var p = progress();
+    return '<div class="progline num" id="progline"><span>記録 <b>' + p.done + "</b> / " + p.total + "</span>" +
+      '<span class="pbar"><span style="width:' + (p.total ? Math.round(p.done / p.total * 100) : 0) + '%"></span></span></div>';
+  }
+  function refreshRow(m) {
+    var li = document.getElementById("m" + m.no);
+    if (li) {
+      if (S.tab === "all" && S.onlyOpen && settled(m)) li.remove();
+      else if (S.tab === "court" && S.hideChecked && m.chk) li.remove();
+      else li.outerHTML = rowHTML(m, rowOpts());
+    }
+    var pl = document.getElementById("progline");
+    if (pl) pl.outerHTML = progHTML();
+    var cs = document.getElementById("cs" + m.court);
+    if (cs) cs.outerHTML = courtSumHTML(m.court);
+    var ch = document.getElementById("chip" + m.court);
+    if (ch) ch.outerHTML = chipHTML(m.court);
+  }
+  function setWin(no, side, toggle) {
+    var m = byNo(no);
+    if (!m || isFF(m)) return null;
+    var prev = m.win;
+    m.win = toggle && m.win === side ? null : side;
+    if (prev !== m.win) m.chk = false;
+    save();
+    refreshRow(m);
+    return m;
+  }
+
+  /* ----- 記録・全体 ----- */
+  function vAll() {
+    if (!S.matches.length) return needMatches();
+    var h = '<div class="toolbar">' + progHTML() +
+      '<div class="btns tight">' +
+      '<button class="btn small' + (S.onlyOpen ? " on" : "") + '" data-act="onlyOpen" aria-pressed="' + S.onlyOpen + '">未記録だけ表示</button>' +
+      '<button class="btn small' + (U.swap ? " on" : "") + '" data-act="swap" aria-pressed="' + U.swap + '">試合を入れ替える</button>' +
+      '<button class="btn small" data-act="printAll">全体表を印刷</button></div></div>';
+    h += '<p class="help listhelp">一覧では、勝った方の名前を押すと記録されます（もう一度押すと取り消し）。</p>';
+    if (U.swap) h += '<p class="banner">入れ替えたい2試合を順にタップしてください（記録済み・不戦の試合は選べません）。番号とコートはそのままで、対戦カードだけが入れ替わります。</p>';
+    var byRound = {}, maxR = S.result ? S.result.rounds : 0;
+    S.matches.forEach(function (m) { (byRound[m.round] = byRound[m.round] || []).push(m); if (m.round > maxR) maxR = m.round; });
+    for (var r = 1; r <= maxR; r++) {
+      var ms = byRound[r] || [];
+      if (!ms.length) {
+        if (!S.onlyOpen) h += '<p class="round-h wait">第' + r + "巡　休みを確保するための待ち</p>";
+        continue;
+      }
+      var show = S.onlyOpen ? ms.filter(function (m) { return !settled(m); }) : ms;
+      if (!show.length) continue;
+      h += '<p class="round-h">第' + r + '巡</p><ul class="mlist">' + show.map(function (m) { return rowHTML(m); }).join("") + "</ul>";
+    }
+    return h;
+  }
+  /* ----- コート別・照合 ----- */
+  function courtSumHTML(c) {
+    var list = S.matches.filter(function (m) { return m.court === c; });
+    var done = list.filter(settled).length, chk = list.filter(function (m) { return settled(m) && m.chk; }).length;
+    var first = list.filter(function (m) { return !settled(m); })[0];
+    return '<div class="csum num" id="cs' + c + '"><div><span>記録</span><b>' + done + " / " + list.length + "</b></div>" +
+      "<div><span>照合済み</span><b>" + chk + " / " + done + "</b></div>" +
+      "<div><span>未記録の最初</span><b>" + (first ? "No." + first.no : "なし") + "</b></div></div>";
+  }
+  function chipHTML(c) {
+    var cl = S.matches.filter(function (m) { return m.court === c; });
+    var unchk = cl.filter(function (m) { return settled(m) && !m.chk; }).length;
+    var rem = cl.filter(function (m) { return !settled(m); }).length;
+    return '<button class="chip" id="chip' + c + '" role="tab" data-act="court" data-c="' + c + '" aria-selected="' + (S.court === c) + '">' + CL(c) + "コート" +
+      '<small class="num">未記録' + rem + (unchk ? "・未照合" + unchk : "") + "</small></button>";
+  }
+  function courtList(c) {
+    return S.matches.filter(function (m) { return m.court === c && !(S.hideChecked && m.chk); })
+      .map(function (m) { return rowHTML(m, { noCourt: true, chk: true }); }).join("");
+  }
+  function vCourt() {
+    if (!S.matches.length) return needMatches();
+    var C = courtCount();
+    if (S.court > C) S.court = 1;
+    U.wide = isWide();
+    var tools = '<div class="toolbar"><p class="help">紙の記録用紙と同じ並びです。勝者（○）が紙と同じなら右の丸を押して「照合済み」に。違っていたら名前を押して直してください。</p>' +
+      '<div class="btns tight"><button class="btn small' + (S.hideChecked ? " on" : "") + '" data-act="hideChecked" aria-pressed="' + S.hideChecked + '">照合済みを隠す</button>' +
+      '<button class="btn small" data-act="xlsxSheets">記録用紙を出力（.xlsx）</button>' +
+      '<button class="btn small" data-act="printCourts">記録用紙をこのまま印刷</button></div></div>';
+    var h = "", c;
+    if (U.wide) {
+      h += tools + '<div class="courts-wide" style="--cols:' + C + '">';
+      for (c = 1; c <= C; c++) {
+        h += '<section class="ccol" data-c="' + c + '"><h2 class="ccol-h">' + CL(c) + "コート</h2>" + courtSumHTML(c) +
+          '<ul class="mlist one">' + courtList(c) + "</ul></section>";
+      }
+      return h + "</div>";
+    }
+    h = '<div class="chips" role="tablist" aria-label="コート">';
+    for (c = 1; c <= C; c++) h += chipHTML(c);
+    h += "</div>" + courtSumHTML(S.court) + tools;
+    h += '<ul class="mlist one">' + courtList(S.court) + "</ul>";
+    return h;
+  }
+
+  /* ----- 順位 ----- */
+  function vRank() {
+    if (!S.matches.length) return needMatches();
+    var list = standings(), p = progress(), rem = p.total - p.done;
+    var h = '<div class="toolbar"><p class="help">' + (rem ? "途中経過です（未記録 " + rem + " 試合）。" : "全試合の記録が終わっています。") + "</p>" +
+      '<div class="btns tight"><button class="btn small primary" data-act="xlsxResults">結果をスプレッドシートで出力（.xlsx）</button></div></div>';
+    h += '<div class="tblwrap"><table class="rk"><thead><tr><th>順位</th><th>選手</th><th class="n">勝</th><th class="n">負</th><th class="n">残り</th></tr></thead><tbody>' +
+      list.map(function (s) {
+        var tieNote = s.tieN ? '<span class="tieinfo">同勝数' + s.tieN + "人中 " + s.tieW + "勝</span>" : "";
+        return '<tr class="' + (s.absent ? "abs" : "") + (s.rank && s.rank <= 3 ? " top" + s.rank : "") + (s.tieN ? " tied" : "") + '"><td class="rkno num">' + (s.absent ? "—" : s.rank + (s.tie ? "<small>同</small>" : "")) + "</td>" +
+          '<td><span class="who">' + pHTML(s.id) + "</span>" + (s.absent ? ' <em class="fft">欠席</em>' : "") + (s.ffw ? ' <small class="muted">（不戦勝' + s.ffw + "含む）</small>" : "") + tieNote + "</td>" +
+          '<td class="n num">' + s.w + '</td><td class="n num">' + s.l + '</td><td class="n num">' + (s.absent ? "" : s.rem) + "</td></tr>";
+      }).join("") + "</tbody></table></div>" +
+      '<div class="card rule"><h2>順位の決め方</h2><ol class="dots">' +
+      "<li>勝ち数が多い順。</li>" +
+      "<li>勝ち数が同じ人が何人かいるときは、<b>その人たちの間だけの勝ち数</b>で決めます（例：5人が同じ勝ち数なら、その5人の間の試合の勝ち数）。</li>" +
+      "<li>それでも同じ人がいれば、その人たちの間で2.をくり返します。三すくみなどで決まらなければ同順位です。</li>" +
+      "<li>欠席者との試合は不戦勝（勝ち1）として数えます。</li></ol></div>";
+    return h;
+  }
+
+  /* ----- 選手・QR ----- */
+  function payloadFor(id, stamp) {
+    var entries = S.matches.filter(function (m) { return m.a === id || m.b === id; })
+      .sort(function (x, y) { return x.no - y.no; })
+      .map(function (m) { var o = m.a === id ? m.b : m.a; return { no: m.no, court: CL(m.court), oppNum: pnum(o), opp: pname(o), ff: isFF(m) }; });
+    return { title: S.title, ev: S.ev || "g:" + (S.genAt || ""), num: pnum(id), name: pname(id), stamp: stamp, entries: entries };
+  }
+  function qrFor(id, stamp) {
+    var p = payloadFor(id, stamp), base = baseUrl();
+    if (!base) return { p: p, svg: null };
+    var url = base + "#p=" + encodePayload(p);
+    var q = QR.encode(url, "M");
+    if (q.version > 20) q = QR.encode(url, "L");
+    return { p: p, url: url, svg: QR.toSvg(q, { label: p.name + "さんの試合一覧のQRコード" }), version: q.version };
+  }
+  function status(id) {
+    if (S.dirty[id]) return '<span class="st redo">要再発行</span>';
+    if (S.issued[id]) return '<span class="st ok">発行済</span>';
+    return '<span class="st">未発行</span>';
+  }
+  function vPlayers() {
+    if (!S.matches.length) return needMatches();
+    var h = "";
+    if (!baseUrl()) {
+      h += '<div class="card warnbox"><h2>QRのリンク先が未設定です</h2><p>このページをインターネット上に置き、そのURLで開くと自動でQRが作れます。手元のファイルを直接開いているときは「データ・出力」タブでリンク先を入力してください。</p>' +
+        '<div class="btns"><button class="btn small" data-act="tab" data-tab="data">データ・出力タブへ</button></div></div>';
+    }
+    var dirtyIds = Object.keys(S.dirty).filter(function (k) { return S.dirty[k]; });
+    h += '<div class="toolbar"><p class="help">名前の「QR」を押すと大きく表示されます。保護者のスマホのカメラで読み取ってもらってください。</p>' +
+      '<div class="btns tight"><button class="btn small" data-act="printQR" data-which="all">QRカードを全員分印刷</button>' +
+      (dirtyIds.length ? '<button class="btn small hot" data-act="printQR" data-which="dirty">要再発行の' + dirtyIds.length + "人分を印刷</button>" : "") +
+      "</div></div>" +
+      '<input type="search" class="search" data-f="q" placeholder="番号か名前で探す" value="' + esc(U.q) + '" aria-label="番号か名前で探す">' +
+      '<ul class="plist" id="plist">' + playerRows() + "</ul>";
+    return h;
+  }
+  function playerRows() {
+    var q = U.q.trim().replace(/[０-９]/g, function (d) { return String.fromCharCode(d.charCodeAt(0) - 0xfee0); });
+    return S.players.filter(function (p) { return !q || p.name.indexOf(q) >= 0 || String(pnum(p.id)) === q; }).map(function (p) {
+      var cnt = S.matches.filter(function (m) { return (m.a === p.id || m.b === p.id); }).length;
+      return '<li class="pr' + (p.absent ? " abs" : "") + '">' + pnoTag(pnum(p.id)) + '<div class="pn"><b>' + esc(p.name) + '</b><span class="num">' + cnt + "試合" +
+        (p.rest !== S.rest ? "・間隔" + p.rest + "巡" : "") + "</span></div>" + status(p.id) +
+        '<button class="btn small' + (p.absent ? " on" : "") + '" data-act="absent" data-id="' + p.id + '" aria-pressed="' + p.absent + '">欠席</button>' +
+        '<button class="btn small primary" data-act="qr" data-id="' + p.id + '">QR</button></li>';
+    }).join("") || '<li class="help">見つかりません</li>';
+  }
+  function openQR(id) {
+    var stamp = stampNow(), r = qrFor(id, stamp), d = document.getElementById("dlg");
+    var live = r.p.entries.filter(function (e) { return !e.ff; }).length;
+    d.innerHTML = '<div class="dlg-in"><div class="dlg-h"><p class="dlg-t">' + pnoTag(r.p.num) + esc(r.p.name) + "<span>さん</span></p>" +
+      '<button class="btn small" data-act="close">閉じる</button></div>' +
+      (r.svg ? '<div class="qrbox">' + r.svg + '</div><p class="help c">保護者のスマホのカメラで読み取ってください</p>' :
+        '<p class="warn">QRのリンク先が未設定のため、QRは作れません（「データ・出力」タブで設定）。下は表示内容の確認です。</p>') +
+      '<p class="help c num">全' + live + "試合 ・ " + stamp + " 発行</p>" +
+      '<details><summary>保護者のスマホに出る内容を確認</summary>' + listPlayer(r.p.entries, false) + "</details>" +
+      (r.svg ? '<div class="btns"><button class="btn small" data-act="printQR" data-which="one" data-id="' + id + '">このQRを印刷</button></div>' : "") +
+      "</div>";
+    if (r.svg) { S.issued[id] = stamp; delete S.dirty[id]; save(); }
+    if (typeof d.showModal === "function") { if (!d.open) d.showModal(); } else d.setAttribute("open", "");
+    var pl = document.getElementById("plist");
+    if (pl) pl.innerHTML = playerRows();
+  }
+  function closeDlg() {
+    var d = document.getElementById("dlg");
+    if (typeof d.close === "function" && d.open) d.close(); else d.removeAttribute("open");
+    if (S.tab === "players") renderMain();
+  }
+
+  /* ----- 印刷（ブラウザ） ----- */
+  function doPrint(html) {
+    document.getElementById("print").innerHTML = html;
+    setTimeout(function () { window.print(); }, 60);
+  }
+  function printQR(which, oneId) {
+    if (!baseUrl()) { toast("QRのリンク先が未設定です（データ・出力タブで設定）"); return; }
+    var ids = which === "one" ? [oneId] : which === "dirty" ?
+      S.players.filter(function (p) { return S.dirty[p.id]; }).map(function (p) { return p.id; }) :
+      S.players.map(function (p) { return p.id; });
+    var stamp = stampNow();
+    var cards = ids.map(function (id) {
+      var r = qrFor(id, stamp);
+      S.issued[id] = stamp; delete S.dirty[id];
+      var live = r.p.entries.filter(function (e) { return !e.ff; }).length;
+      return '<div class="qc"><p class="qc-t">' + esc(S.title || "総当たり戦") + '</p><p class="qc-n"><span class="qc-no">' + r.p.num + "</span>" + esc(r.p.name) + "</p>" + r.svg +
+        '<p class="qc-m">' + (S.players[id].absent ? "欠席（全試合不戦）" : "全" + live + "試合") + " ・ " + stamp + " 発行</p></div>";
+    });
+    save();
+    if (S.tab === "players") renderMain();
+    doPrint('<div class="pq">' + cards.join("") + "</div>");
+  }
+  function printAll() {
+    var rows = S.matches.map(function (m) {
+      var w = winnerId(m);
+      return "<tr" + (isFF(m) ? ' class="ff"' : "") + "><td>" + m.no + "</td><td>" + m.round + "</td><td>" + CL(m.court) + "コート</td><td>" + esc(ptext(m.a)) + "</td><td>" + esc(ptext(m.b)) + "</td><td>" + (w != null ? esc(ptext(w)) : "") + "</td><td>" + (isFF(m) ? "不戦" : "") + "</td></tr>";
+    }).join("");
+    doPrint('<h1 class="pt-h">' + esc(S.title || "総当たり戦") + "　全体表（全" + S.matches.length + "試合）</h1>" +
+      '<table class="pt"><thead><tr><th>No.</th><th>巡</th><th>コート</th><th>選手</th><th>選手</th><th>勝者</th><th>メモ</th></tr></thead><tbody>' + rows + "</tbody></table>");
+  }
+  function sheetResult(m) {
+    if (!isFF(m)) return "A　・　B";
+    var w = winnerId(m);
+    return w === m.a ? "Aの不戦勝" : w === m.b ? "Bの不戦勝" : "不戦";
+  }
+  var SHEET_NOTE = "勝敗の欄で、勝った方の記号（A・B）を○で囲んでください。";
+  function printCourts() {
+    var C = courtCount(), html = "";
+    for (var c = 1; c <= C; c++) {
+      var rows = S.matches.filter(function (m) { return m.court === c; }).map(function (m, i) {
+        return "<tr" + (isFF(m) ? ' class="ff"' : "") + "><td class=\"c\">" + (i + 1) + '</td><td class="c">' + m.no + "</td>" +
+          '<td class="c">' + pnum(m.a) + '</td><td class="nm">' + esc(pname(m.a)) + '</td><td class="kn">' + esc(pkana(m.a)) + "</td>" +
+          '<td class="vs">vs</td>' +
+          '<td class="c">' + pnum(m.b) + '</td><td class="nm">' + esc(pname(m.b)) + '</td><td class="kn">' + esc(pkana(m.b)) + "</td>" +
+          '<td class="mk">' + sheetResult(m) + "</td></tr>";
+      }).join("");
+      html += '<section class="pc"><h1 class="pt-h">' + esc(S.title || "総当たり戦") + "　" + CL(c) + "コート　記録用紙</h1>" +
+        '<table class="pt sheet"><thead><tr><th rowspan="2">コート内<br>No.</th><th rowspan="2">大会<br>No.</th><th colspan="3">選手A</th><th rowspan="2"></th><th colspan="3">選手B</th><th rowspan="2">勝敗</th></tr>' +
+        "<tr><th>番号</th><th>名前</th><th>ふりがな</th><th>番号</th><th>名前</th><th>ふりがな</th></tr></thead><tbody>" + rows + "</tbody></table>" +
+        '<p class="pt-note">' + SHEET_NOTE + "</p></section>";
+    }
+    doPrint(html);
+  }
+
+  /* ----- スプレッドシート出力 ----- */
+  function xlsxSheets() {
+    var C = courtCount(), sheets = [], title = S.title || "総当たり戦";
+    var H = function (v) { return { v: v, s: 1 }; };
+    for (var c = 1; c <= C; c++) {
+      var rows = [[{ v: title + "　" + CL(c) + "コート　記録用紙", s: 4 }],
+      [H("コート内\nNo."), H("大会\nNo."), H("選手A"), H(""), H(""), H(""), H("選手B"), H(""), H(""), H("勝敗")],
+      [H(""), H(""), H("番号"), H("名前"), H("ふりがな"), H(""), H("番号"), H("名前"), H("ふりがな"), H("")]];
+      var heights = { 0: 30, 1: 22, 2: 20 };
+      S.matches.filter(function (m) { return m.court === c; }).forEach(function (m, i) {
+        var ff = isFF(m);
+        heights[rows.length] = 28;
+        rows.push([{ v: i + 1, s: 3 }, { v: m.no, s: 3 },
+        { v: pnum(m.a), s: 3 }, { v: pname(m.a), s: 7 }, { v: pkana(m.a), s: 5 },
+        { v: "vs", s: 11 },
+        { v: pnum(m.b), s: 3 }, { v: pname(m.b), s: 7 }, { v: pkana(m.b), s: 5 },
+        { v: sheetResult(m), s: ff ? 3 : 6 }]);
+      });
+      rows.push([]);
+      rows.push([{ v: SHEET_NOTE, s: 10 }]);
+      sheets.push({
+        name: CL(c) + "コート", rows: rows, cols: [8, 7, 5, 15, 14, 4, 5, 15, 14, 12], heights: heights,
+        merges: ["A1:J1", "A2:A3", "B2:B3", "C2:E2", "F2:F3", "G2:I2", "J2:J3"], freeze: 3, printTitles: [2, 3]
+      });
+    }
+    download(XL.blob(sheets), safeFile(title) + "_記録用紙.xlsx");
+    toast("コート別の記録用紙を出力しました（" + C + "シート）");
+  }
+  function xlsxResults() {
+    var title = S.title || "総当たり戦", list = standings(), p = progress();
+    var note = (p.total - p.done ? "途中経過（未記録 " + (p.total - p.done) + " 試合）" : "全試合記録済み") + "・" + stampNow() + " 出力";
+    var r1 = [[{ v: title + "　順位表", s: 4 }], [{ v: note, s: 10 }],
+    ["順位", "番号", "名前", "勝", "負", "同勝数内の勝ち", "不戦勝（内数）", "残り", "備考"].map(function (v) { return { v: v, s: 1 }; })];
+    list.forEach(function (s) {
+      r1.push([{ v: s.absent ? "—" : (s.tie ? s.rank + "（同）" : s.rank), s: 3 }, { v: pnum(s.id), s: 3 }, { v: s.name, s: 2 }, { v: s.w, s: 3 }, { v: s.l, s: 3 },
+      { v: s.tieN ? s.tieW + "勝（" + s.tieN + "人中）" : "", s: 3 }, { v: s.ffw || "", s: 3 }, { v: s.absent ? "" : s.rem, s: 3 }, { v: s.absent ? "欠席" : "", s: 2 }]);
+    });
+    r1.push([]);
+    r1.push([{ v: "順位は勝ち数で決める。勝ち数が同じ人が何人かいるときは、その人たちの間だけの勝ち数で決め、さらに同じならその人たちの間でくり返す。決まらなければ同順位。欠席者との試合は不戦勝（勝ち1）。", s: 10 }]);
+    var r2 = [[{ v: title + "　試合結果", s: 4 }], ["No.", "巡", "コート", "選手", "選手", "勝者", "備考", "照合"].map(function (v) { return { v: v, s: 1 }; })];
+    S.matches.forEach(function (m) {
+      var w = winnerId(m), ff = isFF(m);
+      r2.push([{ v: m.no, s: 3 }, { v: m.round, s: 3 }, { v: CL(m.court) + "コート", s: 3 }, { v: ptext(m.a), s: 2 }, { v: ptext(m.b), s: 2 },
+      { v: w != null ? ptext(w) : "", s: 2 }, { v: ff ? "不戦（欠席）" : (w == null ? "未記録" : ""), s: 5 }, { v: m.chk ? "済" : "", s: 3 }]);
+    });
+    var ids = S.players.map(function (pl) { return pl.id; });
+    var res = {};
+    S.matches.forEach(function (m) {
+      var w = winnerId(m);
+      if (w == null) return;
+      var l = w === m.a ? m.b : m.a, ff = isFF(m);
+      res[w + "-" + l] = ff ? "□" : "○";
+      res[l + "-" + w] = ff ? "■" : "●";
+    });
+    var stBy = {};
+    list.forEach(function (s) { stBy[s.id] = s; });
+    var headNo = [{ v: "番号", s: 1 }].concat(ids.map(function (id) { return { v: pnum(id), s: 1 }; }), [{ v: "勝", s: 1 }, { v: "負", s: 1 }, { v: "順位", s: 1 }]);
+    var head = [{ v: "名前", s: 1 }].concat(ids.map(function (id) { return { v: pname(id), s: 8 }; }), [{ v: "", s: 1 }, { v: "", s: 1 }, { v: "", s: 1 }]);
+    var r3 = [[{ v: title + "　星取表", s: 4 }], headNo, head];
+    ids.forEach(function (i) {
+      var row = [{ v: ptext(i), s: 2 }];
+      ids.forEach(function (j) { row.push(i === j ? { v: "", s: 9 } : { v: res[i + "-" + j] || "", s: 3 }); });
+      var s = stBy[i];
+      row.push({ v: s.w, s: 3 }, { v: s.l, s: 3 }, { v: s.absent ? "—" : s.rank, s: 3 });
+      r3.push(row);
+    });
+    r3.push([]);
+    r3.push([{ v: "○勝ち　●負け　□不戦勝　■不戦敗（欠席）　空欄は未記録", s: 10 }]);
+    var cols3 = [15].concat(ids.map(function () { return 3.8; }), [5, 5, 6]);
+    var lastCol = XL.colName(ids.length + 3);
+    download(XL.blob([
+      { name: "順位表", rows: r1, cols: [9, 6, 20, 6, 6, 15, 13, 6, 9], heights: { 0: 30 }, freeze: 3, printTitles: [3, 3] },
+      { name: "試合結果", rows: r2, cols: [7, 5, 9, 20, 20, 20, 14, 6], heights: { 0: 30 }, freeze: 2, printTitles: [2, 2] },
+      { name: "星取表", rows: r3, cols: cols3, heights: { 0: 30, 2: 90 }, merges: ["A1:" + lastCol + "1"], freeze: 3, landscape: true, onePage: true }
+    ]), safeFile(title) + "_結果_" + fileStamp() + ".xlsx");
+    toast("結果を出力しました（順位表・試合結果・星取表）");
+  }
+
+  /* ----- データ ----- */
+  function vData() {
+    var auto = autoBase();
+    return '<div class="cards2"><section class="card"><h2>スプレッドシートで出力</h2>' +
+      '<p class="help">Excel・Googleスプレッドシート・Numbersで開けます。ファイルはこの端末の中で作られ、どこにも送られません。</p>' +
+      '<div class="btns"><button class="btn" data-act="xlsxSheets"' + (S.matches.length ? "" : " disabled") + ">コート別の記録用紙（.xlsx）</button>" +
+      '<button class="btn" data-act="xlsxResults"' + (S.matches.length ? "" : " disabled") + ">結果（順位表・試合結果・星取表）</button></div></section>" +
+      '<section class="card"><h2>このアプリと個人情報</h2><ul class="dots">' +
+      "<li>このページは通信を一切しない設定になっています（ブラウザの機能で外部への送信をブロック）。</li>" +
+      "<li>名簿や組み合わせ、勝敗の記録は、この端末のブラウザの中にだけ保存されます。</li>" +
+      "<li>QRコードには、その子の試合（番号・コート・相手の名前）だけが入ります。ページの置き場所のサーバーには名前は届きません。</li>" +
+      "<li>名簿のスプレッドシートから取り込むのは、名前とふりがなの列だけです。ほかの列（学年・連絡先など）は取り込みません。</li>" +
+      "<li>保護者がQRのリンクをLINEなどで送ると、名前ごと広がります。保護者には送らないようお願いしてください。</li></ul></section>" +
+      '<section class="card"><h2>QRのリンク先</h2>' +
+      '<p class="help">今開いているページのURL：' + (auto ? '<span class="url">' + esc(auto) + "</span>（自動で使います）" : "なし（手元のファイルとして開いています）") + "</p>" +
+      '<label class="f" for="fBase">別のURLを使う場合だけ入力</label>' +
+      '<input id="fBase" type="url" data-f="baseUrl" value="' + esc(S.baseUrl) + '" placeholder="https://〇〇.github.io/chanbara/" autocapitalize="off" spellcheck="false">' +
+      '<p class="help">このページを置いた場所のURLです。保護者のスマホはここからページを開き、名前はQRから受け取ります。</p></section>' +
+      '<section class="card"><h2>バックアップ・別の端末へ</h2><p class="help">書き出したファイルを別の端末で読み込むと、同じ状態（勝敗の記録も含む）から続けられます。端末どうしの自動同期はありません。</p>' +
+      '<div class="btns"><button class="btn" data-act="export">バックアップを書き出す</button>' +
+      '<label class="btn filebtn">バックアップを読み込む<input type="file" accept="application/json,.json" data-f="import"></label></div></section>' +
+      '<section class="card"><h2>すべて消去</h2><p class="help">大会が終わったら消しておくと安心です。この端末に保存された名簿・組み合わせ・勝敗がすべて消えます。</p>' +
+      '<div class="btns"><button class="btn danger" data-act="wipe">すべて消去する</button></div></section></div>';
+  }
+  function exportData() {
+    download(new Blob([JSON.stringify(S)], { type: "application/json" }), safeFile(S.title || "総当たり") + "_バックアップ_" + fileStamp() + ".json");
+  }
+  function importData(file) {
+    var fr = new FileReader();
+    fr.onload = function () {
+      try {
+        var o = JSON.parse(fr.result);
+        if (!o || o.v !== 1 || !Array.isArray(o.matches)) throw new Error("x");
+        if (!confirm("今のデータを、読み込んだファイルの内容に置きかえます。よろしいですか？")) return;
+        S = migrate(Object.assign(defaults(), o));
+        U = freshU();
+        save(); render(); toast("読み込みました");
+      } catch (e) { toast("このファイルは読み込めませんでした"); }
+    };
+    fr.readAsText(file);
+  }
+
+  /* ----- 入れ替え ----- */
+  function gapsOf(id) {
+    var rs = S.matches.filter(function (m) { return m.a === id || m.b === id; }).map(function (m) { return m.round; }).sort(function (a, b) { return a - b; });
+    var g = Infinity;
+    for (var i = 1; i < rs.length; i++) g = Math.min(g, rs[i] - rs[i - 1] - 1);
+    return g;
+  }
+  function pick(no) {
+    var m = byNo(no);
+    if (!m || settled(m)) { toast("記録済み・不戦の試合は入れ替えられません"); return; }
+    if (U.sel == null) { U.sel = no; renderMain(); return; }
+    if (U.sel === no) { U.sel = null; renderMain(); return; }
+    var m1 = byNo(U.sel), m2 = m;
+    var a = m1.a, b = m1.b;
+    m1.a = m2.a; m1.b = m2.b; m2.a = a; m2.b = b;
+    var ids = [m1.a, m1.b, m2.a, m2.b], issuedHit = [];
+    ids.forEach(function (id) { if (S.issued[id]) { S.dirty[id] = true; issuedHit.push(pname(id)); } });
+    var short = ids.filter(function (id, i) { return ids.indexOf(id) === i && gapsOf(id) < S.players[id].rest; })
+      .map(function (id) { var g = gapsOf(id); return pname(id) + (g < 0 ? "（同じ巡に2試合）" : "（休み" + g + "巡）"); });
+    U.sel = null;
+    save(); renderMain();
+    var msg = "No." + m1.no + "とNo." + m2.no + "を入れ替えました。印刷済みの記録用紙があれば、この2試合を書き直してください。";
+    if (short.length) msg += " 休みが短くなる選手：" + short.join("、") + "。";
+    if (issuedHit.length) msg += " QRの再発行が必要です。";
+    toast(msg);
+  }
+
+  /* ----- イベント ----- */
+  var ovTimer = null;
+  document.addEventListener("click", function (ev) {
+    var t = ev.target.closest("[data-act]");
+    if (!t) return;
+    var act = t.getAttribute("data-act");
+    switch (act) {
+      case "tab":
+        S.tab = t.getAttribute("data-tab"); U.swap = false; U.sel = null; save(); render(); window.scrollTo(0, 0); break;
+      case "generate": generate(); break;
+      case "sample":
+        if (S.roster.trim() && !confirm("今の名簿をサンプル（選手01〜選手30）に置きかえますか？")) return;
+        var arr = []; for (var i = 1; i <= 30; i++) arr.push("選手" + pad2(i));
+        S.roster = arr.join("\n"); save(); renderMain(); break;
+      case "win": setWin(+t.getAttribute("data-no"), t.getAttribute("data-side"), true); break;
+      case "chk":
+        var cm = byNo(+t.getAttribute("data-no"));
+        if (cm && settled(cm)) { cm.chk = !cm.chk; save(); refreshRow(cm); }
+        break;
+      case "hideChecked": S.hideChecked = !S.hideChecked; save(); renderMain(); break;
+      case "onlyOpen": S.onlyOpen = !S.onlyOpen; save(); renderMain(); break;
+      case "swap": U.swap = !U.swap; U.sel = null; renderMain(); break;
+      case "pick": pick(+t.getAttribute("data-no")); break;
+      case "court": S.court = +t.getAttribute("data-c"); save(); renderMain(); break;
+      case "absent":
+        var p = S.players[+t.getAttribute("data-id")];
+        p.absent = !p.absent; save();
+        document.getElementById("plist").innerHTML = playerRows();
+        toast(pnum(p.id) + "番 " + p.name + (p.absent ? "さんを欠席にしました。まだ記録していない試合は不戦扱いで、番号はそのままです。" : "さんの欠席を取り消しました。"));
+        break;
+      case "qr": openQR(+t.getAttribute("data-id")); break;
+      case "close": closeDlg(); break;
+      case "printQR": printQR(t.getAttribute("data-which"), +t.getAttribute("data-id")); break;
+      case "printAll": printAll(); break;
+      case "printCourts": printCourts(); break;
+      case "xlsxSheets": xlsxSheets(); break;
+      case "xlsxResults": xlsxResults(); break;
+      case "impApply":
+        var names = impNames();
+        if (!names.length) return;
+        if (S.roster.trim() && !confirm("今の名簿を、読み込んだ" + names.length + "人に置きかえます。よろしいですか？")) return;
+        S.roster = names.map(function (e) { return e.kana ? e.name + "," + e.kana : e.name; }).join("\n"); U.imp = null; save(); renderMain();
+        toast(names.length + "人を名簿に入れました。確認してから「組み合わせを作る」を押してください。");
+        break;
+      case "impCancel": U.imp = null; document.getElementById("impBox").innerHTML = ""; break;
+      case "export": exportData(); break;
+      case "wipe":
+        if (!confirm("この端末に保存された名簿・組み合わせ・勝敗をすべて消去します。元に戻せません。よろしいですか？")) return;
+        try { localStorage.removeItem(KEY); } catch (e) { }
+        S = defaults(); U = freshU();
+        render(); toast("すべて消去しました"); break;
+    }
+  });
+  document.addEventListener("input", function (ev) {
+    var el = ev.target, f = el.getAttribute && el.getAttribute("data-f");
+    if (!f) return;
+    switch (f) {
+      case "title":
+        S.title = el.value; save();
+        var bs = document.getElementById("brandSub"); if (bs) bs.textContent = S.title || "スポーツチャンバラ";
+        break;
+      case "courts":
+        var c = parseInt(el.value, 10); if (c >= 1 && c <= 16) { S.courts = c; save(); rosterInfo(); } break;
+      case "minutes":
+        var mn = parseFloat(el.value); if (mn > 0 && mn <= 60) { S.minutes = mn; save(); rosterInfo(); } break;
+      case "roster":
+        S.roster = el.value; save();
+        clearTimeout(ovTimer);
+        ovTimer = setTimeout(rosterInfo, 350);
+        break;
+      case "baseUrl": S.baseUrl = el.value.trim(); save(); break;
+      case "q": U.q = el.value; document.getElementById("plist").innerHTML = playerRows(); break;
+    }
+  });
+  document.addEventListener("change", function (ev) {
+    var el = ev.target, f = el.getAttribute && el.getAttribute("data-f");
+    if (!f) return;
+    switch (f) {
+      case "rest": S.rest = parseInt(el.value, 10); save(); rosterInfo(); break;
+      case "strict": S.strict = el.value === "1"; save(); break;
+      case "ov":
+        var nm = el.getAttribute("data-name");
+        if (el.value === "") delete S.overrides[nm]; else S.overrides[nm] = parseInt(el.value, 10);
+        save(); rosterInfo();
+        break;
+      case "import": if (el.files && el.files[0]) importData(el.files[0]); el.value = ""; break;
+      case "rosterFile": if (el.files && el.files[0]) startImport(el.files[0]); el.value = ""; break;
+      case "impCol": if (U.imp) { U.imp.col = parseInt(el.value, 10); document.getElementById("impBox").innerHTML = impHTML(); } break;
+      case "impHead": if (U.imp) { U.imp.header = el.checked; document.getElementById("impBox").innerHTML = impHTML(); } break;
+      case "impKana": if (U.imp) { U.imp.kcol = parseInt(el.value, 10); document.getElementById("impBox").innerHTML = impHTML(); } break;
+    }
+  });
+  if (window.matchMedia) {
+    var mq = window.matchMedia("(min-width: 1100px)");
+    var onMq = function () { if (S.tab === "court" && S.matches.length && U.wide !== isWide()) renderMain(); };
+    if (mq.addEventListener) mq.addEventListener("change", onMq); else if (mq.addListener) mq.addListener(onMq);
+  }
+  document.addEventListener("toggle", function (ev) {
+    if (ev.target && ev.target.id === "ovBox") U.ovOpen = ev.target.open;
+  }, true);
+  var dlg = document.getElementById("dlg");
+  dlg.addEventListener("click", function (ev) { if (ev.target === dlg) closeDlg(); });
+  dlg.addEventListener("cancel", function (ev) { ev.preventDefault(); closeDlg(); });
+
+  render();
+})();
+
+</script>
+</body>
+</html>
